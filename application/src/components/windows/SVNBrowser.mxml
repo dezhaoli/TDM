@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:components="components.*"  xmlns:mx="library://ns.adobe.com/flex/mx" width="800" height="500" title="SVN Browser" showStatusBar="false" creationComplete="onCreationComplete()" initialize="onInitialize()" menu="{xmlBasedMenu}">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.naruto.debugger.DMenu;
+			import com.naruto.debugger.DUtils;
+			import com.naruto.debugger.helper.ExTools;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Label;
+			import mx.events.FlexNativeMenuEvent;
+			
+			import components.itemrenderers.TileListItemRenderer;
+			
+			import controllers.panels.TraceController;		
+			
+			
+			
+			
+			
+			[Embed(source="../../../assets/unknow.png")]
+			public var _I_unknow:Class;
+			
+			
+			private var _backURLs:Array=[];
+			private var _picURL:String;
+			private var _replacePicFile:File;
+			[Bindable]
+			private var _tlDatas:ArrayCollection=new ArrayCollection;
+
+
+			public var replaceLog:String = "";
+			private var _targetData:SVNEntry;
+			private var _resoultDatas:Array;
+			/**
+			 * Set the data in the snapshot window
+			 * @param item: The object containing all the data
+			 */
+			public function setData(picURL:String):void
+			{
+				// Save the item
+				_picURL = picURL;
+			}
+
+
+			private function onInitialize():void
+			{
+				visible = false;
+			}
+
+
+			/**
+			 * The application is ready
+			 */
+			private function onCreationComplete():void
+			{
+				
+
+				DUtils.loadWindowOptions(nativeWindow, "com.qq.naruto.debugger.SVNBrowser");
+				visible = true;
+				
+				// Set on top
+				if (DMenu.mainWindow.alwaysInFront) {
+					alwaysInFront = true;
+				}
+				
+				// Add event listener to the stage
+				stage.addEventListener(KeyboardEvent.KEY_UP, function(event:KeyboardEvent):void {
+					if (event.charCode == 27) {
+						close();
+						// The users pressed ESC
+					}
+				});
+				
+				nativeWindow.addEventListener(Event.CLOSING, saveWindowOptions, false, 0, true);
+				labelTf.text = _picURL;
+				reflesh();
+			}
+			private function onTileListDelete(e:Event):void{
+				var cell:TileListItemRenderer = e.target as TileListItemRenderer;
+				var data:SVNEntry = cell.data as SVNEntry;
+				_targetData = data;
+				maskBox.visible = true;
+			}
+			private function saveWindowOptions(e:Event):void
+			{
+				DUtils.saveWindowOptions(nativeWindow, "com.qq.naruto.debugger.SVNBrowser");
+			}
+
+
+			private function menuHandler(event:FlexNativeMenuEvent):void
+			{
+				if (event.label == "Close") {
+					close();
+				} else if (event.label == "Trace") {
+					showTrace();
+				}else if (event.label == "Ext Floder") {
+					ExTools.openExtDir();
+				}else if (event.label == "Reflesh Language Config") {
+					ExTools.checkout("http://tc-svn.tencent.com/narutoI18n/i18n_tools_proj/trunk/languages/LanguageConfig.xml",onCheckoutLanguageConfig);
+				}
+			}
+			private function onCheckoutLanguageConfig(log:String):void{
+				replaceLog = log;
+				var str:String = ExTools.readTextFile(ExTools.LANGUAGE_CONFIG_FILE,false);
+				if(str){
+					var xml:XML = new XML(str);
+					for each(var node:XML in xml..language){
+						//if(node.@weeklyVersion
+					}
+				}
+			}
+			private function showLog():void{
+				var pathOrUrl:String = labelTf.text;
+				
+				if(pathOrUrl.length > 0 && pathOrUrl.indexOf("http://tc-svn.tencent.com/narutoI18n/")==0){
+					pathOrUrl = pathOrUrl.substring(7).replace(/\/\//g,"/");
+					ExTools.openSVNLog("http://"+pathOrUrl);
+				}
+			}
+			
+			private function showcheckout():void{
+				var pathOrUrl:String = labelTf.text;
+				if(pathOrUrl.length > 0 && pathOrUrl.indexOf("http://tc-svn.tencent.com/narutoI18n/")==0){
+					pathOrUrl = pathOrUrl.substring(7).replace(/\/\//g,"/");
+					ExTools.openSVNCheckout("http://"+ pathOrUrl);
+				}
+			}
+			private function goBack():void{
+				if(_backURLs.length <2)return;
+				
+				_backURLs.pop();
+				var url:String = _backURLs.pop();
+				labelTf.text = url;
+				reflesh();
+			}
+			private function reflesh():void{
+				
+				var url:String = labelTf.text;
+				var root:String = url.substring(0,url.lastIndexOf("/"));
+				var fn:String = url.substring(url.lastIndexOf("/")+1);
+				
+				
+				if(_backURLs.length == 0 || _backURLs[_backURLs.length-1] != url)
+					_backURLs.push(url);
+				if(checkIsFile(fn)){//a file
+					_picURL = labelTf.text;
+					switchView(1);
+				}else if(url.length > 0){//directory
+					_tlDatas.removeAll();
+					var _loader:URLLoader = new URLLoader;
+					_loader.addEventListener(Event.COMPLETE,function onLoadComplete(e:Event):void{
+						try{
+							var xml:XML = XML(_loader.data); 
+							_resoultDatas = [];
+							for each( node in xml.index.dir){
+								var data:SVNEntry = new SVNEntry;
+								data.isDir = true;
+								data.url = url + "/" + node.@name;
+								data.name = node.@name + "";
+								_resoultDatas.push(data);
+							}
+							for each( var node:XML in xml.index.file){
+								data = new SVNEntry;
+								var name:String = String(node.@name);
+								if(checkIsPic(name)){
+									data.isPic = true;
+								}
+								data.url = url + "/" + name;
+								data.name = node.@name + "";
+								_resoultDatas.push(data);
+							}
+							if(_resoultDatas.length == 0 && fn.indexOf(".")!= -1){
+								labelTf.text = root;
+								reflesh();
+								return;
+							}
+							//最后一个是添加
+							data = new SVNEntry;
+							data.isAdd = true;
+							data.url = url;
+							data.name = "";
+							_resoultDatas.push(data);
+							showDatas(_resoultDatas);
+							
+							switchView(3);
+						}catch(estr:Error){
+							labelTf.text = root;
+							reflesh();
+						}
+					});
+					_loader.addEventListener(IOErrorEvent.IO_ERROR,function onLoadComplete(e:Event):void{
+						Alert.show("输入的地址错误","",4,rootCanvas);
+					});
+					_loader.load(new URLRequest(url));
+				}
+				
+			}
+			private function onFilter(e:Event):void{
+				if(_resoultDatas){
+					showDatas(_resoultDatas);
+				}
+			}
+			private  function showDatas(arr:Array):void{
+				try{
+					_tlDatas.removeAll();
+				}catch(e:Error){
+					//_context.log(e.message);
+				}
+				for each(var item:Object in arr){
+					if(filterItem(item))
+						_tlDatas.addItem(item);
+				}
+			}
+			private function filterItem(item:Object):Boolean{
+				var res:Boolean;
+				var findstr:String = filter!=null ? filter.text.toLocaleLowerCase():"";
+				if(!findstr) return true;
+				var name:String = item.name.toLocaleLowerCase();
+				
+				if (name.indexOf(findstr) != -1) {
+					
+					res = true;
+				}
+				
+				return res;
+			}
+			private function checkIsPic(name:String):Boolean{
+				return name.length>4 && (name.substr(-4) == ".png" ||name.substr(-4) == ".jpg"|| name.substr(-4) == ".gif");
+			}
+			private function checkIsFile(name:String):Boolean{
+				
+				var reg:RegExp = /\.[a-zA-Z]+$/;
+				
+				return reg.exec(name);
+			}
+			/**
+			 * index: 1:single, 2:replay, 3:browse
+			 */
+			private function switchView(index:int):void{
+				viewStack.selectedIndex = index-1;
+				switch(index){
+					case 1:
+						picImage.source = null;
+						
+						var fn:String = _picURL.substring(_picURL.lastIndexOf("/")+1);
+						if(checkIsPic(fn)){
+							picImage.source = _picURL;
+						}else{
+							picImage.source = _I_unknow;
+						}
+					break;
+					
+					case 2:
+					
+						if(_picURL){
+							picImageA.source = _picURL;
+						}
+						if(_replacePicFile){
+							picImageB.source = _replacePicFile.nativePath;
+						}
+					break;
+					
+					
+					case 3:
+						tileList.addEventListener("fileDrop",onTileListFileDrop);
+						tileList.addEventListener("delete",onTileListDelete);
+						filter.addEventListener("enter",onFilter,false,0,true);
+						break;
+				}
+			}
+			
+			private function onDragEnter(e:NativeDragEvent):void{
+				if(e.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT) && checkIsPic(_picURL)){
+					var filelist:Array = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+					
+					if(filelist.length != 1 ){
+						return;
+					}
+					var f:File = filelist[0] as File;
+					if(f.isDirectory == true || !checkIsPic(f.name)){
+						return;
+					}
+					NativeDragManager.acceptDragDrop(picImage);
+				}
+				
+			}
+			
+			private function onDropPic(e:NativeDragEvent):void{
+				
+				var filelist:Array = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				_replacePicFile = filelist[0] as File;
+				switchView(2);
+			}
+			
+			private function onTileListFileDrop(e:Event):void
+			{
+				var cell:TileListItemRenderer = e.target as TileListItemRenderer;
+				var data:SVNEntry = cell.data as SVNEntry;
+				if(data.isOpAdd){
+					_targetData = data;
+					maskBox.visible = true;
+				}else if(data.isOpRep){
+					if(checkIsPic(data.url)){//都是文件，且文件格式相同
+						labelTf.text = cell.data.url;
+						reflesh();
+						_replacePicFile = cell.data.file;
+						switchView(2);
+					}else{
+						_targetData = data;
+						maskBox.visible = true;
+					}
+				}
+			}
+			
+			private function replaceCommit():void{
+				
+				ExTools.checkoutReplayCommit(_picURL,_replacePicFile,onReplaceComplete);
+				switchView(1);
+				
+			}
+			private function onReplaceComplete(log:String):void{
+				replaceLog = log;
+				
+				reflesh();
+			}
+			private function onCancleBtn():void{
+				maskBox.visible = false;
+				_targetData.file = null;
+				_targetData.isOpAdd = false;
+				_targetData.isOpDel = false;
+				_targetData.isOpRep = false;
+				_targetData.update();
+				_targetData = null;
+			}
+			private function onOKBtn():void{
+				maskBox.visible = false;
+				if(_targetData.isOpAdd){
+					ExTools.checkoutAddCommit(_targetData.url,_targetData.file,onReplaceComplete);
+				}else if(_targetData.isOpDel){
+					ExTools.checkoutRemoveCommit(_targetData.url,onReplaceComplete);
+				}else if(_targetData.isOpRep){
+					ExTools.checkoutReplayCommit(_targetData.url,_targetData.file,onReplaceComplete);
+				}
+			}
+			private function cancleReplace():void{
+				_replacePicFile = null;
+				switchView(1);
+			}
+
+
+			private function showTrace():void{
+				var obj:Object = {};
+				obj.xml = TraceController.parse(replaceLog);
+				
+				var traceWindow:TraceWindow = new TraceWindow();
+				traceWindow.setData(obj);
+				traceWindow.open();
+			}
+
+
+			private function onTLDoubleClick(e:Event):void{
+				if(tileList.selectedItem){
+					labelTf.text = tileList.selectedItem.url as String;
+					reflesh();
+				}
+				
+			}
+			private function onLoad(img:Image,label:Label):void {
+				label.text = "" + img.content.width + " x " + img.content.height;
+				
+				
+				if(whTfA.text != whTfB.text){
+					whTfA.setStyle("color","#ff0000");
+					whTfB.setStyle("color","#ff0000");
+				}else{
+					whTfA.setStyle("color","#000000");
+					whTfB.setStyle("color","#000000");
+				}
+				
+			}
+		]]>
+	</fx:Script>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace panels "components.panels.*";
+		
+		.customScrollBarStyle
+		{
+			thumb-skin: ClassReference("skins.scrollbar.vertical.ScrollbarThumbSkin");
+			track-skin: ClassReference("skins.scrollbar.vertical.ScrollbarTrackSkin");
+			down-arrow-skin: Embed(source="../../../assets/scroll_bar_button_down.png");
+			up-arrow-skin: Embed(source="../../../assets/scroll_bar_button_up.png");
+		}
+		
+	</fx:Style>
+	<fx:Declarations>
+		<fx:XML id="xmlMenuData" format="e4x">
+			<menubar>
+				<menu label="File">
+					<menuitem label="Close" ctrlKey="true" key="w"/>
+					<menuitem label="Trace" ctrlKey="true" key="t"/>
+					<menuitem label="Ext Floder" ctrlKey="true" key="e"/>
+					<menuitem label="Reflesh Language Config"/>
+				</menu>
+			</menubar>
+		</fx:XML>
+		<mx:FlexNativeMenu id="xmlBasedMenu" showRoot="false" labelField="@label" keyEquivalentField="@key" dataProvider="{xmlMenuData}" itemClick="menuHandler(event)" menuShow="true"/>
+	</fx:Declarations>
+	<mx:Canvas id="rootCanvas" top="0" left="0" right="0" bottom="0">
+		<mx:VBox width="100%" height="100%">
+			<mx:HBox width="100%" verticalAlign="middle" height="30" >
+				<s:Spacer width="1" />
+				<s:Button id="backBt"   skinClass="skins.button.iconButtons.BackButton"  click="goBack()" toolTip="Return"/>
+				<s:Button id="refleshBt"   skinClass="skins.button.iconButtons.RefleshButton" click="reflesh()" toolTip="Reflesh"/>
+				<s:TextInput id="labelTf" width="100%" height="26" enter="reflesh()" />
+				<s:Button id="logBt" skinClass="skins.button.iconButtons.SVNLogButton" click="showLog()" toolTip="SVN Show log"/>
+				<s:Button id="checkoutBt" skinClass="skins.button.iconButtons.SVNCheckoutButton" click="showcheckout()" toolTip="SVN Checkout"/>
+				<s:Spacer width="1" />
+			</mx:HBox>
+			<mx:ViewStack id="viewStack" width="100%" height="100%" backgroundColor="#DDDDDD" creationPolicy="all">
+				<mx:Canvas label="fileView"  width="100%" height="100%" >
+					<mx:Box verticalCenter="0" horizontalCenter="0" backgroundColor="0xffffff"  borderColor="#b2b2b2" borderStyle="solid">
+						<mx:Image id="picImage" nativeDragDrop="onDropPic(event)" nativeDragEnter="onDragEnter(event)"  complete="onLoad(picImage,whTf)" />
+						<mx:Label id="whTf" width="100%" fontWeight="bold" bottom="10" fontSize="14" textAlign="center" />
+					</mx:Box>
+				</mx:Canvas>
+				
+				<mx:Canvas label="replaceView"  width="100%" height="100%" >
+						<s:BorderContainer width="45%" height="100%" left="2">
+							<mx:Image width="100%" id="picImageA"  complete="onLoad(picImageA,whTfA)" />
+							<mx:Label id="whTfA" width="100%" fontWeight="bold" bottom="10" fontSize="14" textAlign="center" />
+						</s:BorderContainer>
+						<mx:VBox horizontalCenter="0" horizontalAlign="center" width="8%" height="100%">
+							<mx:Spacer width="100%" height="100%"/>
+							<s:Button width="100%"  label="Replace ->" height="20" skinClass="skins.button.DefaultButton" click="replaceCommit()"/>
+							<s:Button width="100%"  label="Cancle" height="20" skinClass="skins.button.DefaultButton" click="cancleReplace()"/>
+							<mx:Spacer width="100%" height="100%"/>
+						</mx:VBox>
+						
+						<s:BorderContainer width="45%" height="100%" right="2">
+							<mx:Image width="100%" id="picImageB"  complete="onLoad(picImageB,whTfB)"  />
+							<mx:Label id="whTfB" width="100%" fontWeight="bold" bottom="10" fontSize="14" textAlign="center" />
+						</s:BorderContainer>
+						
+				</mx:Canvas>
+				<mx:Canvas label="dirView"  width="100%" height="100%" >
+					<mx:TileList id="tileList"  dataProvider="{_tlDatas}" itemRenderer="components.itemrenderers.TileListItemRenderer" 
+								 columnWidth="132" doubleClickEnabled="true" doubleClick="onTLDoubleClick(event)"
+								 width="100%" height="100%"  verticalScrollBarStyleName="customScrollBarStyle" horizontalScrollBarStyleName="customScrollBarStyle">
+						
+					</mx:TileList>
+					
+					<components:Filter id="filter"  right="22" top="2" width="100"/>
+				</mx:Canvas>
+				
+					
+			</mx:ViewStack>
+			
+		</mx:VBox>
+		<mx:Box id="maskBox" width="100%" height="100%" visible="false" verticalAlign="middle" horizontalAlign="center" backgroundColor="0xffffff" backgroundAlpha="0.2">
+			<mx:HBox>
+				<s:Button width="150"  label="OK" height="50" skinClass="skins.button.DefaultButton" click="onOKBtn()"/>
+				<s:Button width="150"  label="Cancle" height="50" skinClass="skins.button.DefaultButton" click="onCancleBtn()"/>
+			</mx:HBox>
+		</mx:Box>
+	</mx:Canvas>
+</s:Window>

@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:components="components.*" xmlns:tabs="components.tabs.*" xmlns:naruto="com.naruto.*" showStatusBar="false" usePreloader="false" chromeColor="#B2B2B2" contentBackgroundColor="#FFFFFF" initialize="onInit()" >
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/halo";
+		s|WindowedApplication {
+			fontSize: 11;
+		}
+		s|Window {
+			fontSize: 11;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.naruto.debugger.DConstants;
+			import com.naruto.debugger.DData;
+			import com.naruto.debugger.DHistory;
+			import com.naruto.debugger.DMenu;
+			import com.naruto.debugger.DUpdater;
+			import com.naruto.debugger.DUtils;
+			import com.naruto.debugger.IClient;
+			import com.naruto.debugger.netgroup.NetgroupServer;
+			import com.naruto.debugger.socket.SocketServer1;
+			import com.naruto.debugger.socket.SocketServer2;
+			import com.naruto.debugger.socket.SocketServerAndroid;
+			
+			import flash.desktop.NativeApplication;
+			import flash.filesystem.File;
+			
+			import mx.events.IndexChangedEvent;
+			import mx.events.ListEvent;
+			
+			import components.plus.TabCloseable;
+			import components.windows.AboutWindow;
+			import components.windows.HelpWindow;
+			
+			import controllers.home.HomeController;
+			import controllers.tabs.TabController;
+			
+			
+
+			// Controllers and basic windows
+			private var home:HomeController;
+			private var tabs:Vector.<TabController> = new Vector.<TabController>();
+			private var helpWindow:HelpWindow;
+			private var aboutWindow:AboutWindow;
+			
+			[Bindable]
+			[Embed(source="icons/icon_16.png")]
+			public var DockImage:Class;
+			private var dockImage:BitmapData;
+
+
+			/**
+			 * Application is ready
+			 */
+			private function onInit():void
+			{
+				DData._dev = DUtils.loadSettingValue("DEV", false);
+				DData._hideDisplayProp = DUtils.loadSettingValue("hideDisplayProp", false);
+				// Start the servers
+				SocketServerAndroid.initialize();
+				SocketServer1.initialize();
+				SocketServer1.onClientConnect = onClientConnect;
+//				SocketServer2.initialize();
+//				SocketServer2.onClientConnect = onClientConnect;
+				NetgroupServer.initialize();
+				NetgroupServer.onClientConnect = onClientConnect;
+				
+				// Check for update
+				DUpdater.check();
+
+				// Center window if the window is outside a screen
+				DUtils.loadWindowOptions(nativeWindow, "com.qq.naruto.debugger.MainWindow");
+				
+				// Load history (recent files)
+				DHistory.load();
+
+				// Create the home tab
+				home = new HomeController(container);
+				
+				//TranslateController.init();
+
+				// Init the menu
+				DMenu.initialize(nativeWindow);
+				DMenu.addEventListener(DMenu.ALWAYS_ON_TOP, stayOnTop);
+				DMenu.addEventListener(DMenu.HELP_WINDOW, showHelp);
+				DMenu.addEventListener(DMenu.ABOUT_TRANSLATION, showAbout);
+				DMenu.addEventListener(DMenu.EXPORT_CLIENT_SWC, urlHandler);
+				DMenu.addEventListener(DMenu.EXPORT_CLIENT_MOBILE_SWC, urlHandler);
+				DMenu.addEventListener(DMenu.DEBUGGER_GAME, urlHandler);
+				DMenu.addEventListener(DMenu.PRODUCT_WEBSITE, urlHandler);
+				DMenu.addEventListener(DMenu.FEEDBACK, urlHandler);
+				DMenu.addEventListener(DMenu.AS3_REFERENCE, urlHandler);
+				DMenu.addEventListener(DMenu.AS3_RUNTIME_ERRORS, urlHandler);
+				DMenu.addEventListener(DMenu.RIA_GUIDE, urlHandler);
+				DMenu.addEventListener(DMenu.FLASH_PLAYERS, urlHandler);
+				
+				// Close
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING, exitApplication, false, 0, true);
+				nativeWindow.addEventListener(NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING, windowStateHandler, false, 0, true);
+				nativeWindow.addEventListener(Event.CLOSING, hideApplication, false, 0, true);
+				
+				container.viewstack.addEventListener(IndexChangedEvent.CHANGE, onTabChange, false, 0, true);
+				container.addEventListener(TabCloseable.CLOSE_TAB, _closedTab, false, 0, true);
+				container.addEventListener(TabCloseable.CLOSE_APPLICATION, closeApplication, false, 0, true);
+				
+				dockImage = (new DockImage() as Bitmap).bitmapData;
+				
+				
+				NativeApplication.nativeApplication.icon.bitmaps = [dockImage]; //设置托盘的图标    
+				if (NativeApplication.supportsSystemTrayIcon){   
+					//设置托盘菜单的事件    
+					var dockIcon:SystemTrayIcon = SystemTrayIcon(NativeApplication.nativeApplication.icon);
+					dockIcon.tooltip =  "Translation Debugger" ;   
+					dockIcon.addEventListener(MouseEvent.CLICK, undock);   
+					dockIcon.menu = createSystrayRootMenu(); //生成托盘菜单    
+				}
+			}
+			public  function createSystrayRootMenu():NativeMenu{   
+				var menu:NativeMenu =  new  NativeMenu();   
+				var openNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Open" ); //生成OPEN菜单项    
+				var exitNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Exit" ); //同理    
+				openNativeMenuItem.addEventListener(Event.SELECT, undock);   
+				exitNativeMenuItem.addEventListener(Event.SELECT, closeApplication); //添加EXIT菜单项事件    
+				menu.addItem(openNativeMenuItem);   
+				menu.addItem( new  NativeMenuItem( "" , true )); //separator     
+				menu.addItem(exitNativeMenuItem); //将菜单项加入菜单    
+				return  menu;
+			}  
+			
+			//将本地应用程序放到托盘    
+			public  function dock(): void  {   
+				nativeWindow.visible =  false ;  //设置本地程序窗体不可见    
+			}   
+			
+			//激活程序窗体    
+			public  function undock(evt:Event): void  {   
+				nativeWindow.visible = true ; //设置本地程序窗体可见    
+				nativeWindow.orderToFront(); //设置本地程序窗体到最前端    
+				//NativeApplication.nativeApplication.icon.bitmaps = []; //将托盘图标清空   
+			} 
+			private function stayOnTop(e:Event):void
+			{
+				alwaysInFront = !alwaysInFront;
+			}
+
+			private function showHelp(e:Event):void
+			{
+				if (helpWindow == null || helpWindow.closed) {
+					helpWindow = new HelpWindow();
+				}
+				helpWindow.open();
+				helpWindow.activate();
+			}
+
+
+			private function showAbout(e:Event):void
+			{
+				if (aboutWindow == null || aboutWindow.closed) {
+					aboutWindow = new AboutWindow();
+				}
+				aboutWindow.open();
+				aboutWindow.activate();
+			}
+
+			private function onTabChange(e:IndexChangedEvent):void
+			{
+				var i:int = 0;
+				if (tabs.length >= 1 && e.newIndex > 0) {
+					var num:Number = e.newIndex;
+					for (i = 0; i < tabs.length; i++) {
+						tabs[i].active = false;
+					}
+					tabs[num - 1].active = true;
+				} else {
+					for (i = 0; i < tabs.length; i++) {
+						tabs[i].active = false;
+					}
+				}
+			}
+
+			/**
+			 * Created a new tab for the client
+			 */
+			private function onClientConnect(client:IClient):void
+			{
+				var i:int = 0;
+				for (i = 0; i < tabs.length; i++) {
+					if (client.fileLocation == tabs[i].client.fileLocation && client.fileTitle == tabs[i].client.fileTitle) {
+						tabs[i].client = client;
+						return;
+					}
+				}
+				var tab:TabController = new TabController(closedTab, container, client);
+				
+				tab.active = true;
+				for (i = 0; i < tabs.length; i++) {
+					tabs[i].active = false;
+				}
+
+				tabs.push(tab);
+
+				// Add or check for recent
+				home.addRecent(client);
+			}
+
+
+			private function urlHandler(e:Event):void
+			{
+				switch(e.type) {
+					case DMenu.EXPORT_CLIENT_SWC:
+						var originalFile1:File = File.applicationDirectory.resolvePath("export/TranslationDebugger.swc");
+						var file1:File = File.desktopDirectory.resolvePath("TranslationDebugger.swc");
+						file1.addEventListener(Event.SELECT, function(e:Event):void {
+							originalFile1.copyTo(file1, true);
+						});
+						file1.browseForSave("Save TranslationDebugger.swc");
+						break;
+					case DMenu.EXPORT_CLIENT_MOBILE_SWC:
+						var originalFile2:File = File.applicationDirectory.resolvePath("export/DMobile.swc");
+						var file2:File = File.desktopDirectory.resolvePath("DMobile.swc");
+						file2.addEventListener(Event.SELECT, function(e:Event):void {
+							originalFile2.copyTo(file2, true);
+						});
+						file2.browseForSave("Save TranslationDebugger.swc");
+						break;
+					case DMenu.AS3_REFERENCE:
+						navigateToURL(new URLRequest(DConstants.URL_AS3_REFERENCE));
+						break;
+					case DMenu.AS3_RUNTIME_ERRORS:
+						navigateToURL(new URLRequest(DConstants.URL_AS3_ERRORS));
+						break;
+					case DMenu.RIA_GUIDE:
+						navigateToURL(new URLRequest(DConstants.URL_AS3_RIA));
+						break;
+					case DMenu.FLASH_PLAYERS:
+						navigateToURL(new URLRequest(DConstants.URL_AS3_PLAYER));
+						break;
+				}
+			}
+
+
+			/**
+			 * Tab is closed
+			 */
+			private function _closedTab(e:ListEvent):void
+			{
+				if(container.checkTab(home._tab)){
+					closedTab(tabs[e.rowIndex - 1]);
+				}else{
+					closedTab(tabs[e.rowIndex]);
+				}
+			}
+			public function closedTab(tab:TabController):void
+			{
+				if(container.checkTab(tab._tab)){
+					container.removeTab(tab._tab);
+					for(var i:int=0;i<tabs.length;i++){
+						if(tab == tabs[i]){
+							tab.clear();
+							tabs.splice(i, 1);
+						}
+					}
+				}
+				
+			}
+			
+			
+			/**
+			 * Main window is maximized, save previous position
+			 */
+			private function windowStateHandler(event:NativeWindowDisplayStateEvent):void
+			{
+				// Save when we maximize
+				if (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED) {
+					DUtils.saveWindowOptions(nativeWindow, "com.qq.naruto.debugger.MainWindow");
+				}else if (event.afterDisplayState == NativeWindowDisplayState.MINIMIZED) {   
+					
+				}  
+			}
+			
+			private function hideApplication(e:Event):void
+			{
+				e.preventDefault(); //阻止系统默认的关闭窗体事件    
+				dock(); //将程序放入托盘    
+			}
+			/**
+			 * Application is closing
+			 */
+			private function closeApplication(e:Event):void
+			{
+				exitApplication(e);
+				NativeApplication.nativeApplication.exit();
+			}
+			private function exitApplication(e:Event):void
+			{
+				SocketServer1.stop();
+				SocketServerAndroid.stop();
+				NetgroupServer.stop();
+				var windows:Array = NativeApplication.nativeApplication.openedWindows;
+				for (var i:int = 0; i < windows.length; i++) {
+					windows[i].close();
+				}
+			}
+	
+			
+		]]>
+	</fx:Script>
+	<tabs:TabContainer id="container" x="0" y="0" width="100%" height="100%"/>
+</s:WindowedApplication>

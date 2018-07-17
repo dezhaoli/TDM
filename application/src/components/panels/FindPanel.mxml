@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" label="Traces" xmlns:components="components.*" xmlns:button="skins.button.*" xmlns:itemrenderers="components.itemrenderers.*">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.data {
+			backgroundAlpha: 1; 
+			backgroundColor: #FFFFFF; 
+			alternatingItemColors: #F0F0F0, #FFFFFF; 
+			horizontalGridLines: false; 
+			letterSpacing: 0; 
+			horizontalGridLineColor: #B2B2B2; 
+			verticalGridLineColor: #B2B2B2; 
+			rollOverColor: #BDEAF5; 
+			textRollOverColor: #000000; 
+			borderThickness: 0; 
+			border-style:none; 
+			selectionColor: #63BACF; 
+			color: #000000; 
+			textSelectedColor: #000000; 
+			textIndent: 0; 
+			dropShadowEnabled: false; 
+			text-align:left; 
+			padding-left:20; 
+			fontWeight: normal;
+			symbolColor: #545454; 
+		}
+		.customScrollBarStyle
+		{
+			thumb-skin: ClassReference("skins.scrollbar.vertical.ScrollbarThumbSkin");
+			track-skin: ClassReference("skins.scrollbar.vertical.ScrollbarTrackSkin");
+			down-arrow-skin: Embed(source="../../../assets/scroll_bar_button_down.png");
+			up-arrow-skin: Embed(source="../../../assets/scroll_bar_button_up.png");
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import components.itemrenderers.DatagridComponent;
+			
+			import skins.CheckBoxSkin;
+			import skins.DropdownMenu;
+		]]>
+	</fx:Script>
+	<mx:HBox width="100%" height="100%" bottom="23" >
+		
+	<mx:DataGrid id="datagrid" width="100%" height="100%" selectionDuration="0" styleName="data" 
+				 headerBackgroundSkin="skins.datagrid.DatagridHeader" headerSeparatorSkin="skins.datagrid.DatagridHeaderDivider" 
+				 minHeight="0" doubleClickEnabled="true" verticalScrollPolicy="auto" verticalScrollBarStyleName="customScrollBarStyle" 
+				 headerHeight="21" rowHeight="23" editable="false">
+		<mx:columns>
+			<mx:DataGridColumn headerText="#" dataField="line" width="20">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label text="{data['line']}"  paddingLeft="5" paddingRight="5" truncateToFit="false"/>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn id="clnA" headerText="en" dataField="a" editable="false" width="200" editorDataField="newValue">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label htmlText="{data['a']}"  paddingLeft="5" paddingRight="5" truncateToFit="false"/>
+					</fx:Component>
+				</mx:itemRenderer>
+				<mx:itemEditor>
+					<fx:Component>
+						<itemrenderers:FindDatagridComponent LableName="A"/>
+					</fx:Component>
+				</mx:itemEditor>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn id="clnB" headerText="cn" dataField="b" editable="false" width="150" editorDataField="newValue">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label htmlText="{data['b']}"  paddingLeft="5" paddingRight="5" truncateToFit="false"/>
+					</fx:Component>
+				</mx:itemRenderer>
+				<mx:itemEditor>
+					<fx:Component>
+						<itemrenderers:FindDatagridComponent LableName="B"/>
+					</fx:Component>
+				</mx:itemEditor>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn  id="clnC" headerText="key" dataField="c" editable="false" width="80">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label htmlText="{data['c']}"  paddingLeft="5" paddingRight="5" truncateToFit="false"/>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn id="clnD" headerText="source" dataField="d" editable="false" width="50">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label text="{data['d']}"  paddingLeft="5" paddingRight="5" truncateToFit="false"/>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+		<s:SkinnableContainer id="previewBox" backgroundColor="#DDDDDD" width="45%" minWidth="200" height="100%">
+			<mx:Image id="picImage" width="100%" height="100%" maintainAspectRatio="true" horizontalAlign="center" verticalAlign="middle" />
+		</s:SkinnableContainer>
+	</mx:HBox>
+	<mx:HRule id="ruler" height="1" width="100%" bottom="23" chromeColor="#B2B2B2"/>
+	<s:HGroup id="bottom" x="0" width="100%" height="24" bottom="0" verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" minHeight="0" gap="5">
+		<s:Label text="Find what: " height="8"/>
+		<components:Filter id="filter" width="600"/>
+		<s:Button id="filterButton"  skinClass="skins.button.iconButtons.FilterButton" />
+		<s:Button id="findButton" label="find..." skinClass="skins.button.iconButtons.FindButton" height="20" width="80"/>
+		<mx:LinkButton id="advancedCB"  label=">>"  selected="false"/>
+		<s:CheckBox id="caseCB" label="Match case" height="20" skinClass="skins.CheckBoxSkin" selected="true"/>
+		<s:CheckBox id="WholeCB" label="Whole word" height="20" skinClass="skins.CheckBoxSkin" selected="false"/>
+		<s:CheckBox id="HighlightCB" label="Highlight" height="20" skinClass="skins.CheckBoxSkin" selected="true"/>
+		
+		
+		<s:Spacer width="100%"/>
+		<s:DropDownList id="findTypeDDL" skinClass="skins.DropdownMenu" width="65" height="23">
+			<mx:ArrayCollection>
+				<fx:String>key</fx:String>
+				<fx:String>mc</fx:String>
+				<fx:String>plugin</fx:String>
+				<fx:String>setting</fx:String>
+			</mx:ArrayCollection>
+		</s:DropDownList>
+		
+	</s:HGroup>
+</s:NavigatorContent>

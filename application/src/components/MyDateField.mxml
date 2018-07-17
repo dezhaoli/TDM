@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  horizontalAlign="left"
+		  width="176" height="22">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 --> 
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			
+			import skins.button.iconButtons.FilterButton;
+			
+			[Bindable]
+			/**
+			 * 控件是否可以直接输入日期
+			 */
+			public var editable:Boolean;
+			
+			[Bindable]
+			/**
+			 * 日期格式  YYYY MM DD HH NN SS
+			 */
+			public var formatString:String ="YYYY-MM-DD HH:NN:SS";
+			
+			[Bindable]
+			private var _date:Date = new Date();
+			
+			
+			/**
+			 * 设置显示日期字符串
+			 */
+			public function set text(value:String):void
+			{
+				_date=DateFormatter.parseDateString(value);
+				
+			}
+			
+			/**
+			 * 获取控件时间
+			 */
+			public function get date():Date
+			{
+				return _date;
+			}
+			
+			private var _inSelected:Boolean = false;
+			
+			/**
+			 * 选择年月日
+			 */
+			protected function onClick(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(_inSelected == true)
+					return ;
+				var dateChooser:MyChooseDate = new MyChooseDate();     
+				dateChooser.selectedDate = _date;
+				dateChooser.onReturnTime = function(value:String):void
+				{
+					text = value;
+					_inSelected = false;
+				};
+				dateChooser.cancelHandler = function():void
+				{
+					_inSelected = false;
+				}
+				dateChooser.x = event.stageX + 30;
+				dateChooser.y = event.stageY - 240;
+				PopUpManager.addPopUp(dateChooser,this,true);
+				_inSelected = true;
+			}  
+			
+			private  function DateToString(d:Date,format:String):String
+			{
+				//YYYY-MM-DD HH:NN:SS
+				var str:String = format;
+				str=str.replace("YYYY",d.fullYear);
+				str = str.replace("MM",d.month+1);
+				str=str.replace("DD",d.date);
+				str=str.replace("HH",d.hours);
+				str=str.replace("NN",d.minutes);
+				str=str.replace("SS",d.seconds);
+				return str;
+			}
+			
+			override public function toString():String
+			{
+				return date_input.text;
+			}
+		]]>
+	</fx:Script>
+	<s:TextInput id="date_input"  text="{DateToString(_date,formatString)}"  height="100%" width="100%" /> 
+	<s:Button id="chooseDate_LBtn"  skinClass="skins.button.iconButtons.DateButton"  click="onClick(event)"/>
+	
+	
+</s:HGroup>

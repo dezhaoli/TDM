@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fb="http://ns.adobe.com/flashbuilder/2009" width="22" height="22" alpha.disabled="0.5">
+	<fx:Metadata>
+		<![CDATA[ 
+		[HostComponent("spark.components.Button")]
+		
+		]]>
+	</fx:Metadata>
+	<fx:Script fb:purpose="styling">
+		<![CDATA[
+			private var _source:Object;
+			
+			[Bindable("sourceChanged")]
+			[Inspectable(category="General")]
+			
+			public function get source():Object
+			{
+				return _source;
+			}
+			
+			public function set source(value:Object):void
+			{
+				if (value != _source)
+				{
+					_source = value;
+					dispatchEvent(new Event("sourceChanged"));
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<s:Rect id="border" left="0" right="0" top="0" bottom="1">
+		<s:fill>
+			<s:SolidColor color.over="#b2b2b2" alpha="0" alpha.over="1"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="fill" left="1" right="1" top="1" bottom="2">
+		<s:fill>
+			<s:SolidColor  color.over="#ededed" alpha="0" alpha.over="1"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="highlight" left="1" right="1" top="1" height="1">
+		<s:fill>
+			<s:SolidColor  color.over="#f8f8f8" alpha="0" alpha.over="1"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="shadow" left="1" right="1" bottom="0" height="1">
+		<s:fill>
+			<s:SolidColor alpha.over="0.2" alpha="0" />
+		</s:fill>
+	</s:Rect>
+	<s:BitmapImage id="icon" source="@Embed('../../../../assets/refresh.png')" left="1" right="1" top="1" bottom="1" />
+</s:SparkSkin>

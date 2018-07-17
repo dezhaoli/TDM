@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:components="components.*" xmlns:tabs="components.tabs.*" xmlns:ticker="components.ticker.*" width="100%" height="100%" click="onInit()">
+	<fx:Script>
+		<![CDATA[
+
+
+			private function onInit():void
+			{
+			}
+
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:SolidColorStroke id="stroke1" color="#0099FF" weight="2"/>
+	    <mx:SolidColorStroke id="stroke2" color="#C0FDAC" weight="2"/>
+		<mx:SolidColorStroke id="axisStroke" color="#FFFFFF" alpha=".2" weight="2"/>
+		<mx:SolidColorStroke id="lineStroke" color="#FFFFFF" alpha=".2" weight="1"/>
+	</fx:Declarations>
+	<mx:VBox horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%" top="6" left="4" right="4" bottom="4" fontSize="11" verticalGap="4">
+		<s:SkinnableContainer id="disconnectMessageBox" visible="false" includeInLayout="false" width="100%" height="27" skinClass="skins.ConnectionLost">
+			<s:layout>
+				<s:BasicLayout/>
+			</s:layout>
+			<s:Label text="Connection lost" color="#ffffff" y="9" x="10" fontWeight="bold"/>
+			<!-- <s:Button id="reconnectButton" label="Reopen Application" height="20" skinClass="skins.button.DefaultButton" width="110" y="4" x="106"/> -->
+			<!-- <s:Button id="clearButton" label="Button" width="9" height="9" skinClass="skins.button.ClearButtonWhite" y="9" right="9"/> -->
+		</s:SkinnableContainer>
+		<mx:VBox id="frontend" horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%" verticalGap="5">
+			<mx:VDividedBox horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%" liveDragging="true" verticalGap="5" dividerSkin="skins.dividerBox.DividerSkin">
+				<s:HGroup width="100%" height="60%" id="horizontalsplit">
+					<mx:HDividedBox horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%" liveDragging="true" horizontalGap="5" dividerSkin="skins.dividerBox.DividerSkin">
+						<tabs:TabPanel width="70%" height="100%" id="leftPanel"/>
+						<tabs:TabPanel width="30%" height="100%" id="middlePanel"/>
+						<s:VGroup width="217" height="100%" gap="4" id="rightGroup">
+							<tabs:TabPanel width="217" height="110" id="rightPanelTop"/>
+							<tabs:TabPanel width="100%" height="100%" id="rightPanelBottom"/>
+						</s:VGroup>
+					</mx:HDividedBox>
+				</s:HGroup>
+				<tabs:TabPanel width="100%" height="40%" id="bottomPanel"/>
+			</mx:VDividedBox>
+			<ticker:Ticker width="100%" height="27"/>
+		</mx:VBox>
+	</mx:VBox>
+	
+</s:NavigatorContent>

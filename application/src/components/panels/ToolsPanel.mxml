@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" backgroundColor="#F5F5F5" backgroundAlpha="1">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import skins.button.DefaultButton;
+			import skins.button.iconButtons.RefleshButton;
+			import skins.button.iconButtons.SVNBrowserButton;
+		]]>
+	</fx:Script>
+	<mx:VBox width="100%"  verticalGap="-2" horizontalGap="0" height="100%">
+		<s:Button label="Running" id="stopResumeBt" width="100%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+		<s:Button label="Start Inspect" id="inspectBt" width="100%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+		<mx:HBox width="100%" horizontalGap="-1">
+			<s:Button label="Find Key" id="flakvBt" left="0" width="50%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+			<s:Button label="Find Pic" id="flapicBt" right="0" width="50%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="-1">
+			<s:Button label="Open FLA" id="openInFlaBt" left="0" width="50%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+			<s:Button label="Open AS" id="openAsBt" right="0" width="50%" skinClass="skins.button.iconButtons.IconButton" enabled="true"/>
+			
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="-1">
+			<s:Button label="FLA Pic" id="linkFlaSVNBt" left="0" width="50%" skinClass="skins.button.iconButtons.SVNBrowserButton" enabled="false"/>
+			<s:Button label="Assets" id="linkAssetsBt" right="0" width="50%" skinClass="skins.button.iconButtons.SVNBrowserButton" enabled="false"/>
+			
+		</mx:HBox>
+		<s:Button label="List All Plugins" id="reloadAssetsBt" width="100%" skinClass="skins.button.iconButtons.IconButtonRmPlugin" enabled="true" visible="false" includeInLayout="false"/>
+			
+		
+	</mx:VBox>
+	
+	<s:Rect  left="0" height="19" bottom="1" right="0">
+		<s:fill>
+			<s:SolidColor color="#b2b2b2"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="backFill" left="1" right="1" height="18" bottom="1">
+		<s:fill>
+			<s:SolidColor color="#99cccc"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="redFill" left="1" height="18" bottom="1" width="0">
+		<s:fill>
+			<s:SolidColor color="#660033"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="greenFill" left="1" height="18" bottom="1" width="0">
+		<s:fill>
+			<s:SolidColor color="#ccff99"/>
+		</s:fill>
+	</s:Rect>
+	<s:Label id="loadInfoTf"  height="14" left="20" bottom="0" width="100%" maxDisplayedLines="1" text="loading files" textAlign="left" paddingLeft="5"  fontWeight="bold"  />
+	<s:Button id="cleanButton" visible="false" label="Reload" bottom="0" left="1" skinClass="skins.button.iconButtons.RefleshButton"/>
+	
+</s:NavigatorContent>

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:components="components.*" xmlns:tabs="components.tabs.*" width="676" height="363" title="TranslationDebugger - About" showStatusBar="false" creationComplete="onCreationComplete()" initialize="onInitialize()" >
+	<fx:Script>
+		<![CDATA[
+
+			import com.naruto.debugger.DMenu;
+			import com.naruto.debugger.DUtils;
+			
+
+			override protected function commitProperties():void
+			{
+				maximizable = false;
+				minimizable = false;
+				resizable = false;
+				super.commitProperties();
+			}
+			
+			
+			private function onInitialize():void
+			{
+				visible = false;
+			}
+			
+			
+			private function onCreationComplete():void
+			{
+				DUtils.loadWindowOptions(nativeWindow, "com.qq.naruto.debugger.AboutWindow");
+				visible = true;
+				
+				// Set on top
+				if (DMenu.mainWindow.alwaysInFront) {
+					alwaysInFront = true;
+				}
+				
+				// Add event listener to the stage
+				stage.addEventListener(KeyboardEvent.KEY_UP, function(event:KeyboardEvent):void {
+					if (event.charCode == 27) {
+						close();
+						// The users pressed ESC
+					}
+				});
+				
+				nativeWindow.addEventListener(Event.CLOSING, saveWindowOptions, false, 0, true);
+			}
+			
+			
+			private function saveWindowOptions(e:Event):void
+			{
+				DUtils.saveWindowOptions(nativeWindow, "com.qq.naruto.debugger.AboutWindow");
+			}
+			
+		]]>
+	</fx:Script>
+
+	<mx:Image source="@Embed('../../../assets/about.png')"></mx:Image>
+	
+	<mx:Text width="320" top="20" left="20" fontSize="11" selectable="false">
+		<mx:htmlText>
+<![CDATA[
+<font size="16"><b>Translation Debugger 3.02</b></font>
+
+Translation Debugger is an open source Adobe Flash, Flex and AIR debugger made by dezhaoli. Translation Debugger is created in ActionScript 3 and Adobe AIR.
+
+More information:
+<b><u><a href='http://www.TranslationDebugger.com'>www.TranslationDebugger.com</a></u></b>
+<b><u><a href='http://www.qq.naruto.com'>www.qq.naruto.com</a></u></b>
+]]>
+		</mx:htmlText>
+	</mx:Text>
+
+</s:Window>

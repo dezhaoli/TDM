@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<!-- update.xml -->
+<update xmlns="http://ns.adobe.com/air/framework/update/description/2.5"> 
+	<versionNumber>2.23</versionNumber> 
+	<versionLabel>release 2.23</versionLabel>
+	<url>http://dev.i18n.huoying.qq.com/AutoUpdate/TranslationDebugger_2.23.air</url>
+	<description> 
+	<text xml:lang="en_US">TranslationDebugger AutoUpdate</text>
+	<text xml:lang="zh_CN">TranslationDebugger 自动更新</text>
+	</description> 
+</update>

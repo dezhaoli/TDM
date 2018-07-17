@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" label="Traces" xmlns:components="components.*" xmlns:panels="components.panels.*" xmlns:ex="components.*">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.data {
+			backgroundAlpha: 1; 
+			backgroundColor: #FFFFFF; 
+			alternatingItemColors: #F0F0F0, #FFFFFF; 
+			horizontalGridLines: false; 
+			letterSpacing: 0; 
+			horizontalGridLineColor: #B2B2B2; 
+			verticalGridLineColor: #B2B2B2; 
+			rollOverColor: #BDEAF5; 
+			textRollOverColor: #000000; 
+			borderThickness: 0; 
+			border-style:none; 
+			selectionColor: #63BACF; 
+			color: #000000; 
+			textSelectedColor: #000000; 
+			textIndent: 0; 
+			dropShadowEnabled: false; 
+			text-align:left; 
+			padding-left:20; 
+			fontWeight: normal;
+			symbolColor: #545454; 
+		}
+		.customScrollBarStyle
+		{
+			thumb-skin: ClassReference("skins.scrollbar.vertical.ScrollbarThumbSkin");
+			track-skin: ClassReference("skins.scrollbar.vertical.ScrollbarTrackSkin");
+			down-arrow-skin: Embed(source="../../../assets/scroll_bar_button_down.png");
+			up-arrow-skin: Embed(source="../../../assets/scroll_bar_button_up.png");
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			
+			
+		]]>
+	</fx:Script>
+	<mx:HBox verticalGap="0" horizontalGap="0" fontSize="11" top="6" left="-1" right="-1" bottom="-1" borderColor="#b2b2b2" borderStyle="solid">
+		<s:SkinnableContainer backgroundColor="#F5F5F5" width="125">
+			<s:ButtonBar id="tabBar"  width="100%" height="100%" dataProvider="{viewStack}" selectedIndex="0" skinClass="skins.button.VerticalButtonBarSkin"/>
+		</s:SkinnableContainer>
+		<mx:ViewStack id="viewStack" width="100%" height="100%" visible="{tabBar.selectedIndex > -1}" backgroundColor="#DDDDDD">
+			<mx:Canvas label="时间" backgroundColor="#DDDDDD" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%" horizontalGap="4" top="1" left="1" right="1" bottom="1">
+					<mx:Form width="100%" height="100%"  horizontalCenter="0" >
+						
+						<mx:FormItem label="server:">
+							<s:DropDownList id="svr_cmdDDL" skinClass="skins.DropdownMenu" width="100"/>
+						</mx:FormItem>
+						<mx:FormItem label="timezone:" id="timeFI">
+							<s:DropDownList id="timezoneDDL" skinClass="skins.DropdownMenu" width="60"/>
+						</mx:FormItem>
+						<mx:FormItem label="UIN:">
+							<s:TextInput id="uinTf" text="10001" x="0" y="0" width="100%" height="100%" borderColor="#b2b2b2" skinClass="skins.TextInputSkin"/>
+						</mx:FormItem>
+						<mx:FormItem label="时间:">
+							<ex:MyDateField id="dateField" />
+						</mx:FormItem>
+						<mx:FormItem label="" direction="horizontal">
+							<s:Button id="getTimeBt" label="查询时间" skinClass="skins.button.GMDefaultButton"/>
+							<s:Button id="setTimeBt" label="设置时间" skinClass="skins.button.GMDefaultButton"/>
+						</mx:FormItem>
+						
+					</mx:Form>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas label="活动" backgroundColor="#DDDDDD" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%" horizontalGap="4" top="1" left="1" right="1" bottom="1">
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Label text="活动ID:"/>
+						<s:TextInput id="idTf" x="0" y="0" width="100%" height="100%" borderColor="#b2b2b2" skinClass="skins.TextInputSkin"/>
+						<s:Button id="getActivityBt" label="查询数据" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="setActivityBt" label="设置数据" skinClass="skins.button.GMDefaultButton"/>
+					</s:HGroup>
+					<s:TextArea id="dataTf" width="100%" height="100%" />
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas label="道具" backgroundColor="#DDDDDD" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%" horizontalGap="4" top="1" left="1" right="1" bottom="1">
+					
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="spBt" label="所有忍者碎片" skinClass="skins.button.GMDefaultButton" width="150"/>
+						<s:Button id="ptBt" label="所有普通物品" skinClass="skins.button.GMDefaultButton" width="150"/>
+					</s:HGroup>
+					<components:GMItemList id="itemList" width="100%" height="100%" />
+				</mx:VBox>
+				
+			</mx:Canvas>
+			<mx:Canvas label="其他" backgroundColor="#DDDDDD" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%" horizontalGap="10" top="1" left="1" right="1" bottom="1">
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="resetBt" label="重置帐号"  skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="roleExBt" label="满级经验" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="oneLvExBt" label="一级经验" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="ninjaExBt" label="忍者经验" skinClass="skins.button.GMDefaultButton"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="ybBt" label="一万元宝" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="dqBt" label="百万点券" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="tbBt" label="千万铜币" skinClass="skins.button.GMDefaultButton"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="testWeapenBt" label="测试武器" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="weapenBt" label="武器装备" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="gyBt" label="勾玉" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="fwBt" label="符文" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="zpBt" label="战袍" skinClass="skins.button.GMDefaultButton"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="zfBt" label="阵法" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="rjBt" label="忍具" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="zhBt" label="转化石" skinClass="skins.button.GMDefaultButton"/>
+						<s:Button id="ckBt" label="查克拉" skinClass="skins.button.GMDefaultButton"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle" paddingTop="1" paddingRight="2" paddingLeft="10" gap="5">
+						<s:Button id="njBt" label="一键加所有忍者" skinClass="skins.button.GMDefaultButton" width="150"/>
+						<s:Button id="jsBt" label="一键加觉醒材料" skinClass="skins.button.GMDefaultButton" width="150"/>
+						<s:Button id="tlBt" label="一键加通灵兽" skinClass="skins.button.GMDefaultButton" width="150"/>
+					</s:HGroup>
+				</mx:VBox>
+			</mx:Canvas>
+		</mx:ViewStack>
+		
+		<s:SkinnableContainer id="htmlContainer"  width="45%" height="100%" minWidth="300" backgroundColor="#DDDDDD">
+			<mx:HTML id="htmlPanel"  top="1" left="1" right="1" bottom="1"/>
+			<!--<s:TextArea id="htmlPanel"  top="1" left="1" right="1" bottom="1"/>-->
+		</s:SkinnableContainer>
+	</mx:HBox>
+		
+</s:NavigatorContent>

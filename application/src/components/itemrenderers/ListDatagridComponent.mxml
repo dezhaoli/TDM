@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="19">
+	<fx:Style>
+	.numericStepper{
+		upArrowUpSkin:  Embed(source="../../../assets/stepper_up.png");
+		downArrowUpSkin:  Embed(source="../../../assets/stepper_down.png");
+		upArrowOverSkin:  Embed(source="../../../assets/stepper_up.png");
+		downArrowOverSkin:  Embed(source="../../../assets/stepper_down.png");
+		upArrowDownSkin:  Embed(source="../../../assets/stepper_up.png");
+		downArrowDownSkin:  Embed(source="../../../assets/stepper_down.png");
+		borderColor:#b2b2b2;
+		borderThickness: 0;
+		shadowColor:#ffffff;
+	}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import events.PanelEvent;
+		
+
+
+			override public function set data(value:Object):void {
+				super.data = value;
+				// Save the needed vars
+			}
+
+
+			private function onClick(e:Event = null):void
+			{
+				var sendEvent:PanelEvent = new PanelEvent("ADD_ITEM");
+				sendEvent.data = {id:data.id,num:numTf.text};
+				dispatchEvent(sendEvent);
+			}
+
+
+		]]>
+	</fx:Script>
+	<s:TextInput id="numTf" text="400" width="80" height="100%"/>
+	<s:Button id="bt" label="添加" left="100" width="100%" height="100%" click="onClick(event)" />
+</s:MXDataGridItemRenderer>

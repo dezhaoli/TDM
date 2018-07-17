@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"  nativeDragDrop="onDropPic(event)" nativeDragEnter="onDragEnter(event)" creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import components.windows.SVNEntry;
+			
+			[Embed(source="../../../assets/dir.png")]
+			public var _I_dir:Class;
+			[Embed(source="../../../assets/add2.png")]
+			public var _I_add2:Class;
+			[Embed(source="../../../assets/unknow.png")]
+			public var _I_unknow:Class;
+			
+			[Embed(source="../../../assets/add_svn.png")]
+			public var _I_add_svn:Class;
+			[Embed(source="../../../assets/remove_icon.png")]
+			public var _I_remove_icon:Class;
+			[Embed(source="../../../assets/modify_svn.png")]
+			public var _I_modify_svn:Class;
+			
+			private var _contextMenu:ContextMenu;
+			private var _init:Boolean;
+			
+			public function onLoad():void {
+				whTf.text = "" + img.content.width + " x " + img.content.height;
+			}
+			public function init():void{
+				if(!_init){
+					_init = true;
+					_contextMenu = new ContextMenu();     
+					//_contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT, onMenuSelected);
+					_contextMenu.hideBuiltInItems();
+					_contextMenu.customItems = new Array;
+					var newBuildMenuItem:ContextMenuItem;
+					newBuildMenuItem = new ContextMenuItem("Delete");
+					newBuildMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,onMenuItemSelect);
+					_contextMenu.customItems.push(newBuildMenuItem);
+				}
+			}
+			override public function set data(value:Object):void{
+				super.data = value;
+				
+				var _entry:SVNEntry = value as SVNEntry;
+				_entry.addEventListener("reflesh",reflesh);
+				reflesh(null);
+			}
+			private function reflesh(e:Event):void{
+				var _entry:SVNEntry = data as SVNEntry;
+				var src:Object = null;
+				addIcon.source = null;
+				whTf.visible = false;
+			
+				
+				with(_entry){
+					if(isAdd){
+						this.contextMenu = null;
+						if(file){
+							if(file.isDirectory){
+								src = _I_dir;
+							}else{
+								var nn:String = String(file.nativePath);
+								if(nn.length>4 && (nn.substr(-4) == ".png" ||nn.substr(-4) == ".jpg"|| nn.substr(-4) == ".gif")){
+									src = nn;
+									whTf.visible = true;
+								}else{
+									src = _I_unknow;
+								}
+							}
+							
+							img.source = src;
+							nameTf.text = file.name;
+							return;
+						}else{
+							src = _I_add2;
+							container.toolTip = "Drag and drop here and add to SVN"
+						}
+						
+						
+					}else{
+						init();
+						this.contextMenu = _contextMenu;
+						if(isDir){
+							src = _I_dir;
+						}else{
+							if(isPic){
+								src = url;
+							}else{
+								src = _I_unknow;
+							}
+							
+						}
+						container.toolTip = "Drag and drop here to replace"
+					}
+					whTf.visible = isPic;
+					img.source = src;
+					nameTf.text = name;
+				}
+			}
+			public function onMenuItemSelect(e:ContextMenuEvent):void//点击菜单执行函数  
+			{  
+				dispatchEvent(new Event("delete",true));
+				addIcon.source = _I_remove_icon;
+				data.isOpDel = true;
+			}
+			private function onDragEnter(e:NativeDragEvent):void{
+				if(!data.isDir && e.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)){
+					var filelist:Array = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+					
+					if(filelist.length != 1 ){
+						return;
+					}
+					var f:File = filelist[0] as File;
+					
+					if(data.isAdd){
+						
+					}else if(data.isDir){
+						return;
+					}else{//文件
+						if(f.isDirectory){//如果是文件夹
+							return;
+						}else if(data.name.indexOf( f.extension) == -1){//都是文件，但是文件格式不同
+							return;
+						}
+					}
+					NativeDragManager.acceptDragDrop(this);
+				}
+				
+			}
+			
+			private function onDropPic(e:NativeDragEvent):void{
+				
+				var filelist:Array = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				var dropFile:File = filelist[0] as File;
+				
+				var _entry:SVNEntry = data as SVNEntry;
+				
+				if(_entry.isAdd){
+					_entry.isOpAdd = true;
+					_entry.file = dropFile;
+					reflesh(null);
+					addIcon.source = _I_add_svn;
+					dispatchEvent(new Event("fileDrop",true));
+				}else if(_entry.isDir){
+					
+				}else{//文件
+					if(!dropFile.isDirectory && _entry.name.indexOf( dropFile.extension) != -1){//都是文件，且文件格式相同
+						_entry.isOpRep = true;
+						_entry.file = dropFile;
+						reflesh(null);
+						addIcon.source = _I_modify_svn;
+						dispatchEvent(new Event("fileDrop",true));
+					}
+				}
+				
+				
+			}
+		]]>
+	</fx:Script>
+	<s:SkinnableContainer id="container" width="128" height="128" backgroundAlpha="0.1" backgroundColor="0xffffff">
+		
+	<mx:Image id="img"  complete="onLoad()" maxHeight="98" maxWidth="128" horizontalCenter="0" bottom="30"/>
+	<mx:Image id="addIcon"  bottom="30" left="0"/>
+		
+	<mx:Label id="nameTf" maxWidth="128" horizontalCenter="0"
+			  fontWeight="bold"
+			  bottom="0" />
+	<mx:Label id="whTf" maxWidth="128" horizontalCenter="0"
+			  fontWeight="bold"
+			  bottom="12" />
+		
+	</s:SkinnableContainer>
+</mx:Canvas>

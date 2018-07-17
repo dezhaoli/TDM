@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"    
+				   minWidth="200" maxWidth="200"
+				   minHeight="260" maxHeight="260"      
+				   width="200" height="260" creationComplete="dateChosser_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DateField;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			/**
+			 * year month day  hour  minute second
+			 */
+			public var onReturnTime:Function;
+			
+			[Bindable]
+			private var _hour:int = 0;
+			
+			[Bindable]
+			private var _minute:int =0;
+			
+			[Bindable]
+			private var _second:int =0;
+			
+			
+			private var _selectedDate:Date;
+			public function set selectedDate(value:Date):void
+			{
+				_selectedDate = value;
+				_hour = value.hours;
+				_minute = value.minutes;
+				_second = value.seconds;
+				
+			}
+			
+			/**
+			 * 输入小时是否合理
+			 */
+//			protected function hour_focusOutHandler(event:FocusEvent):void
+//			{
+//				if(isNaN(Number(hour.text)))
+//				{
+//					hour.text=_hour.toString();
+//					return;
+//				}
+//				_hour = int(hour.text);
+//				if(_hour<0)
+//					_hour=0;
+//				else if(_hour>23)
+//					_hour=23;
+//				hour.text = _hour.toString();    
+//			}
+//			/**
+//			 * 输入分钟是否合理
+//			 */
+//			protected function minute_focusOutHandler(event:FocusEvent):void
+//			{
+//				if(isNaN(Number(minute.text)))
+//				{
+//					minute.text=_minute.toString();
+//					return;
+//				}
+//				_minute = int(minute.text);
+//				if(_minute<0)
+//					_minute=0;
+//				else if(_minute>59)
+//					_minute=59;
+//				minute.text = _minute.toString(); 
+//			}
+//			/**
+//			 * 输入秒是否合理
+//			 */
+//			protected function second_focusOutHandler(event:FocusEvent):void
+//			{
+//				if(isNaN(Number(second.text)))
+//				{
+//					second.text=_second.toString();
+//					return;
+//				}
+//				_second = int(second.text);
+//				if(_second<0)
+//					_second=0;
+//				else if(_second>59)
+//					_second=59;
+//				second.text = _second.toString(); 
+//			}
+			/**
+			 * 双击代表选择
+			 */
+			protected function vgroup1_doubleClickHandler(event:MouseEvent):void
+			{
+				ok_clickHandler(null);
+			}
+			/**
+			 * 返回日期
+			 */
+			protected function ok_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var date:Date = dateChosser.selectedDate;
+				
+				onReturnTime(DateField.dateToString(date,"YYYY-MM-DD")+ " " + hh.value + ":" + mm.value + ":" + ss.value);
+				try
+				{
+					PopUpManager.removePopUp(this);
+				}
+				catch(error:Error)
+				{
+					this.parent.removeChild(this);
+				}
+			}
+			public var cancelHandler:Function;
+			
+			/**
+			 * 取消日期选择
+			 */
+			protected function cancel_clickHandler(event:MouseEvent):void
+			{
+				try
+				{
+					PopUpManager.removePopUp(this);
+				}
+				catch(error:Error)
+				{
+					this.parent.removeChild(this);
+				}
+				cancelHandler();
+			}
+			
+			/**
+			 * DateChooser加载完成后执行
+			 */
+			protected function dateChosser_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				dateChosser.selectedDate = _selectedDate;    
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%" height="100%" >
+		<mx:DateChooser width="100%" id="dateChosser"   >
+			
+		</mx:DateChooser>
+		<s:HGroup paddingTop="0" paddingLeft="10" width="100%" horizontalAlign="left">
+			<s:NumericStepper id="hh" width="100%" height="22" maximum="23" value="{_hour}"  minimum="0" tabIndex="1"/>
+			<s:Label paddingTop="4" text=":"    />
+			<s:NumericStepper id="mm" width="100%" height="22" maximum="59" value="{_minute}"  minimum="0" tabIndex="2"/>
+			<s:Label paddingTop="4" text=":"    />
+			<s:NumericStepper id="ss" width="100%" height="22" maximum="59" value="{_second}" minimum="0" tabIndex="3"/>
+			<mx:Spacer width="2" />
+		</s:HGroup>
+		<s:HGroup width="100%" left="4" right="4" horizontalCenter="true" >
+			<mx:Spacer width="4" />
+			<s:Button label="OK" id="ok" click="ok_clickHandler(event)" height="20" width="70"  skinClass="skins.button.DefaultButton" />
+			<mx:Spacer width="100%" />
+			<s:Button label="Cancel" id="cancel" click="cancel_clickHandler(event)"  height="20" width="70"  skinClass="skins.button.DefaultButton" />
+			<mx:Spacer width="4" />
+		</s:HGroup>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>
