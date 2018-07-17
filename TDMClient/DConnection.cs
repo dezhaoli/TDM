@@ -1,13 +1,12 @@
 ﻿using System;
-namespace com.devin.debugger
+namespace TDM
 {
     public  class DConnection
     {
         private static IConnection connector;
-        public static void Initialize()
+        internal static void Initialize()
         {
             connector = new DConnectionDefault();
-            Connect();
         }
         internal static String Address{
             set{

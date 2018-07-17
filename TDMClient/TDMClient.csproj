@@ -28,10 +28,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="UnityEditor">
+      <HintPath>..\Unity_Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\Unity_Managed\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyClass.cs" />
+    <Compile Include="DCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DConnection.cs" />
+    <Compile Include="DConnectionDefault.cs" />
+    <Compile Include="DConstants.cs" />
+    <Compile Include="IConnection.cs" />
+    <Compile Include="TranslatioinDebugger.cs" />
+    <Compile Include="SocketClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

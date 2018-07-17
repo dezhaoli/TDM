@@ -1,5 +1,5 @@
 ﻿using System;
-namespace com.devin.debugger
+namespace TDM
 {
     internal interface IConnection
     {

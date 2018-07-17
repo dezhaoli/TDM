@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace com.devin.debugger
+namespace TDM
 {
     public class DConnectionDefault : IConnection
     {
@@ -32,9 +32,9 @@ namespace com.devin.debugger
         {
             Debug.Log("BeginConnect!");
 #if UNITY_EDITOR
-            _socket.BeginConnect("127.0.0.1", 10086, HandleAsyncCallback, null);
+            _socket.BeginConnect(_ip, 10086, HandleAsyncCallback, null);
 #elif UNITY_ANDROID
-            _socket.BeginConnect("127.0.0.1", 12580, HandleAsyncCallback, null);
+            _socket.BeginConnect(_ip, 12580, HandleAsyncCallback, null);
 #endif
         }
 
