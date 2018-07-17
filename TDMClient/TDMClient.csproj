@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9BB63D96-DA3B-4C07-9BD2-D45576F794DE}</ProjectGuid>
+    <ProjectGuid>{8F8A7D26-0298-4571-B538-1612C48974A4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TDMClient</RootNamespace>
     <AssemblyName>TDMClient</AssemblyName>
