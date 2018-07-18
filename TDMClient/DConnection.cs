@@ -1,5 +1,5 @@
 ﻿using System;
-namespace TDM
+namespace TDMClient
 {
     public  class DConnection
     {
@@ -18,7 +18,7 @@ namespace TDM
                 return connector.Connected;
             }
         }
-        internal static void Send(String id,Object data,Boolean direct)
+        internal static void Send(String id,BaseVO data,Boolean direct)
         {
             connector.Send(id, data, direct);
         }

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace TDM
+namespace TDMClient
 {
     public class DConnectionDefault : IConnection
     {
@@ -53,7 +53,7 @@ namespace TDM
             throw new NotImplementedException();
         }
 
-        void IConnection.Send(string id, object data, bool direct)
+        void IConnection.Send(string id, BaseVO data, bool direct)
         {
             throw new NotImplementedException();
         }

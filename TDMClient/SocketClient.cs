@@ -1,5 +1,5 @@
 ﻿using System;
-namespace TDM
+namespace TDMClient
 {
     public class SocketClient
     {

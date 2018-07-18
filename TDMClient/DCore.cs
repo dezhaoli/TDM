@@ -1,12 +1,13 @@
 ﻿
+using System;
 using UnityEngine;
 
-namespace TDM
+namespace TDMClient
 {
     public class DCore
     {
         internal static GameObject Base;
-        internal static readonly string ID = "com.dezhaoli.debugger.core";
+        internal const string ID = "com.dezhaoli.debugger.core";
 
         public DCore()
         {
@@ -15,14 +16,26 @@ namespace TDM
         {
 
         }
-        public static void Trace(object caller, object @object, string persion = "", string label = "", uint color = 0, int depth = 5)
+        public static void Trace(object caller, object obj, string persion = "", string label = "", uint color = 0, int depth = 5)
         {
             if (TranslationDebugger.Enabled)
             {
-
+                string xml = DUtils.Parse(obj, "", 1, depth, false);
+                TraceVO data = new TraceVO()
+                {
+                    command = DConstants.COMMAND_HELLO,
+                    memory = DUtils.GetMemory(),
+                    date = DateTime.Now,
+                    reference = DUtils.getReferenceID(caller),
+                    xml = xml,
+                    persion = persion,
+                    label = label,
+                    color = color
+                };
+                Send(data);
             }
         }
-        private static void Send(Object data, bool direct = false)
+        private static void Send(BaseVO data, bool direct = false)
         {
             if (TranslationDebugger.Enabled)
             {

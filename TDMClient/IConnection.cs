@@ -1,12 +1,12 @@
 ﻿using System;
-namespace TDM
+namespace TDMClient
 {
     internal interface IConnection
     {
         String Address { set; }
         Boolean Connected { get; }
 
-        void Send(String id, Object data, Boolean direct);
+        void Send(String id, BaseVO data, Boolean direct);
         void Connect();
         void ProcessQueue();
 

@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using TDM;
 using UnityEngine;
 
-namespace TDM
+namespace TDMClient
 {
     public class TranslationDebugger : MonoBehaviour
     {

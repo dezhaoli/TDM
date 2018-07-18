@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDMClient", "TDMClient.csproj", "{8F8A7D26-0298-4571-B538-1612C48974A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{AB404AAA-4E24-4C14-9373-45AB40544CB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,5 +15,9 @@ Global
 		{8F8A7D26-0298-4571-B538-1612C48974A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F8A7D26-0298-4571-B538-1612C48974A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F8A7D26-0298-4571-B538-1612C48974A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB404AAA-4E24-4C14-9373-45AB40544CB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB404AAA-4E24-4C14-9373-45AB40544CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB404AAA-4E24-4C14-9373-45AB40544CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB404AAA-4E24-4C14-9373-45AB40544CB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

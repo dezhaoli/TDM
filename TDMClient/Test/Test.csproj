@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8F8A7D26-0298-4571-B538-1612C48974A4}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>TDMClient</RootNamespace>
-    <AssemblyName>TDMClient</AssemblyName>
+    <ProjectGuid>{AB404AAA-4E24-4C14-9373-45AB40544CB3}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Test</RootNamespace>
+    <AssemblyName>Test</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -17,39 +17,21 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="UnityEditor">
-      <HintPath>..\Unity_Managed\UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\Unity_Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="LitJson">
-      <HintPath>..\Lib\LitJson.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DCore.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DConnection.cs" />
-    <Compile Include="DConnectionDefault.cs" />
-    <Compile Include="DConstants.cs" />
-    <Compile Include="IConnection.cs" />
-    <Compile Include="TranslatioinDebugger.cs" />
-    <Compile Include="SocketClient.cs" />
-    <Compile Include="DValueObject.cs" />
-    <Compile Include="DUtils.cs" />
-    <Compile Include="DData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
