@@ -90,75 +90,15 @@ package com.naruto.debugger.socket
 
 
 		/**
-		 * Socket error
-		 */
-		public static function send(uid:String, id:String, data:Object):void
-		{
-			for (var client:Object in _clients) {
-				if (_clients[client] == uid) {
-					SocketClient(client).send(id, data);
-				}
-			}
-		}
-		
-
-		/**
 		 * Socket connected
 		 */
 		private static function onConnect(event:ServerSocketConnectEvent):void
 		{
 			// Accept socket
 			var socket:Socket = event.socket;
-			socket.addEventListener(Event.CLOSE, disconnect, false, 0, false);
-			socket.addEventListener(IOErrorEvent.IO_ERROR, disconnect, false, 0, false);
-			socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, disconnect, false, 0, false);
-			socket.addEventListener(ProgressEvent.SOCKET_DATA, dataHandler, false, 0, false);
-		}
-
-
-		/**
-		 * Socket received the first data
-		 */
-		private static function dataHandler(event:ProgressEvent):void
-		{
-			// Get the socket
-			var socket:Socket = event.target as Socket;
-
-			// Read the bytes
-			var bytes:ByteArray = new ByteArray;
-			socket.readBytes(bytes, 0, socket.bytesAvailable);
-			bytes.position = 0;
-
-			// Read the command
-			var command:String = bytes.readUTFBytes(bytes.bytesAvailable);
-			trace("data forom socket:"+ command);
-			// Check XML crossdomain request
-			if (command == "<policy-file-request/>") {
-				
-				// Write the policy file
-				var xml:ByteArray = new ByteArray();
-				xml.writeUTFBytes('<?xml version="1.0"?>');
-				xml.writeUTFBytes('<!DOCTYPE cross-domain-policy SYSTEM "http://www.adobe.com/xml/dtds/cross-domain-policy.dtd">');
-				xml.writeUTFBytes('<cross-domain-policy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.adobe.com/xml/schemas/PolicyFile.xsd">');
-				xml.writeUTFBytes('<site-control permitted-cross-domain-policies="master-only"/>');
-				xml.writeUTFBytes('<allow-access-from domain="*" to-ports="*" secure="false"/>');
-				xml.writeUTFBytes('<allow-http-request-headers-from domain="*" headers="*" secure="false"/>');
-				xml.writeUTFBytes('</cross-domain-policy>');
-				xml.writeByte(0);
-				xml.position = 0;
-				socket.writeBytes(xml, 0, xml.bytesAvailable);
-				socket.flush();
-				return;
-			}
-
-			// Configure wrapper
-			socket.removeEventListener(Event.CLOSE, disconnect);
-			socket.removeEventListener(IOErrorEvent.IO_ERROR, disconnect);
-			socket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, disconnect);
-			socket.removeEventListener(ProgressEvent.SOCKET_DATA, dataHandler);
 
 			// Create a new client
-			var client:SocketClient = new SocketClient(socket);
+			var client:SocketClientAndroid = new SocketClientAndroid(socket);
 			client.onStart = startClient;
 			client.onDisconnect = removeClient;
 
@@ -171,7 +111,7 @@ package com.naruto.debugger.socket
 		 * Client is started and ready for a tab
 		 * THIS IS A CALLBACK FUNCTION
 		 */
-		private static function startClient(client:SocketClient):void
+		private static function startClient(client:SocketClientAndroid):void
 		{
 			// Connect
 			if (onClientConnect != null) {
@@ -184,7 +124,7 @@ package com.naruto.debugger.socket
 		 * Client is done
 		 * THIS IS A CALLBACK FUNCTION
 		 */
-		private static function removeClient(client:SocketClient):void
+		private static function removeClient(client:SocketClientAndroid):void
 		{
 			client.onData = null;
 			client.onStart = null;

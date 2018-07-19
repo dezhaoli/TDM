@@ -86,18 +86,6 @@ package com.naruto.debugger.socket
 		}
 
 
-		/**
-		 * Socket error
-		 */
-		public static function send(uid:String, id:String, data:Object):void
-		{
-			for (var client:Object in _clients) {
-				if (_clients[client] == uid) {
-					SocketClient(client).send(id, data);
-				}
-			}
-		}
-		
 
 		/**
 		 * Socket connected

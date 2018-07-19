@@ -1,6 +1,7 @@
 package com.naruto.debugger
 {
 	import flash.utils.ByteArray;
+	import flash.utils.Endian;
 
 
 	public final class DData
@@ -15,6 +16,7 @@ package com.naruto.debugger
 		// Properties
 		private var _id:String;
 		private var _data:Object;
+		private var _endian:String;
 		[Bindable]
 		public static var simpleMode:Boolean= true;
 		
@@ -24,11 +26,12 @@ package com.naruto.debugger
 		 * @param id: The plugin ID
 		 * @param data: The data for the plugin
 		 */
-		public function DData(id:String, data:Object)
+		public function DData(id:String, data:Object,endian:String = Endian.BIG_ENDIAN )
 		{
 			// Save data
 			_id = id;
 			_data = data;
+			_endian = endian;
 		}
 		
 
@@ -72,7 +75,9 @@ package com.naruto.debugger
 		public function get bytes():ByteArray {
 			// Create the holders
 			var bytesId:ByteArray = new ByteArray();
+			bytesId.endian = _endian;
 			var bytesData:ByteArray = new ByteArray();
+			bytesData.endian = _endian;
 
 			// Save the objects
 			bytesId.writeObject(_id);
@@ -80,6 +85,7 @@ package com.naruto.debugger
 
 			// Write in one object
 			var item:ByteArray = new ByteArray();
+			item.endian =_endian;
 			item.writeUnsignedInt(bytesId.length);
 			item.writeBytes(bytesId);
 			item.writeUnsignedInt(bytesData.length);
@@ -103,8 +109,9 @@ package com.naruto.debugger
 		public function set bytes(value:ByteArray):void {
 			// Create the holders
 			var bytesId:ByteArray = new ByteArray();
+			bytesId.endian = _endian;
 			var bytesData:ByteArray = new ByteArray();
-
+			bytesData.endian = _endian;
 			// Decompress the value and read bytes
 			try {
 				value.readBytes(bytesId, 0, value.readUnsignedInt());
@@ -129,9 +136,10 @@ package com.naruto.debugger
 		/**
 		 * Helper
 		 */
-		public static function read(bytes:ByteArray):DData
+		public static function read(bytes:ByteArray,endian:String = Endian.BIG_ENDIAN):DData
 		{
-			var item:DData = new DData(null, null);
+			var item:DData = new DData(null, null,endian);
+			bytes.endian = endian;
 			item.bytes = bytes;
 			return item;
 		}

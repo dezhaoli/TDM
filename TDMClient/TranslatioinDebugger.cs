@@ -29,7 +29,8 @@ namespace TDMClient
         {
             GUI.Box(new Rect(10, 10, 100, 90), "TranslatioinDebugger");
             if(GUI.Button(new Rect(20, 40, 80, 20), "Send")){
-                
+
+                Log("hi,i'am devin.");
             }
         }
         private void OnDestroy()

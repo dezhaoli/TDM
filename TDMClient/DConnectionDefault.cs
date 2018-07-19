@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 
 namespace TDMClient
@@ -46,16 +47,15 @@ namespace TDMClient
             StateObject state = (StateObject)ar.AsyncState;
             TcpClient tcp = state.client;
             DUtils.Log("TranslationDebugger Connected:"+ tcp.Connected);
-            NetworkStream networkStream;
 
             try{
                 tcp.EndConnect(ar);
                 if (tcp.Connected)
                 {
-                    networkStream = tcp.GetStream();
-                    if (networkStream.CanRead)
+                    NetworkStream ns = tcp.GetStream();
+                    if (ns.CanRead)
                     {
-                        networkStream.BeginRead(state.buffer, 0, StateObject.BufferMaxSize, OnRead, state);
+                        ns.BeginRead(state.buffer, 0, StateObject.BufferMaxSize, OnRead, state);
                         return;
                     }
                 }
@@ -65,9 +65,7 @@ namespace TDMClient
             {
                 closeSocket("TranslationDebugger connection failed:" + ex.Message);
             }
-            //var bytes = System.Text.Encoding.UTF8.GetBytes("hello");
-            //networkStream.Write(bytes,0,bytes.Length);
-            //networkStream.Flush();
+
         }
 
         void OnRead(IAsyncResult ar)
@@ -81,11 +79,11 @@ namespace TDMClient
             }
             state.bufferSize = ns.EndRead(ar);
             state.bufferPos = 0;
-            processPackage(state);
+            ProcessPackage(state);
 
 
         }
-        void processPackage(StateObject state)
+        void ProcessPackage(StateObject state)
         {
             if (state.bufferSize == 0 || state.bufferPos == state.bufferSize) return;
 
@@ -96,7 +94,7 @@ namespace TDMClient
                 {
                     BinaryReader br = new BinaryReader(ms);
                     br.BaseStream.Position = state.packagePos;
-                    state.packageSize = ReadInt(br.ReadBytes(4));
+                    state.packageSize = br.ReadInt32();
                     state.bufferPos += 4;
                     state.package = new byte[state.packageSize];
                     state.packagePos = 0;
@@ -121,7 +119,7 @@ namespace TDMClient
                 state.package = null;
             }
             if(state.bufferPos < state.bufferSize){
-                processPackage(state);
+                ProcessPackage(state);
             }
 
 
@@ -139,12 +137,22 @@ namespace TDMClient
 
         void IConnection.Send(string id, BaseVO data, bool direct)
         {
-            throw new NotImplementedException();
-        }
-        int ReadInt(byte[] bytes){
-            Array.Reverse(bytes);
-            int i = BitConverter.ToInt32(bytes,0);
-            return i;
+            if(direct && id == DCore.ID && _socket.Connected)
+            {
+                using(MemoryStream ms = new MemoryStream()){
+                    BinaryWriter bw = new BinaryWriter(ms, UTF8Encoding.Default);
+                    byte[] bytes = new DData(id, data).Bytes;
+                    bw.Write(bytes.Length);
+                    bw.Write(Encoding.UTF8.GetBytes("LDZ"));
+                    bw.Write(bytes);
+                    var datas = ms.ToArray();
+                    NetworkStream ns = _socket.GetStream();
+                    ns.Write(datas, 0, datas.Length);
+                    ns.Flush();
+                    bw.Close();
+                }
+
+            }
         }
     }
     internal class StateObject{
