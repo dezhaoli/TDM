@@ -42,5 +42,10 @@ namespace TDMClient
                 DConnection.Send(DCore.ID, data, direct);
             }
         }
+
+        internal static void Handle(DData data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,6 +9,9 @@ namespace TDMClient
      */
     internal class DUtils
     {
+        public static void Log(object msg){
+            Debug.Log(msg);
+        }
 
         // References
         private static Dictionary<WeakReference, object> _references = new Dictionary<WeakReference, object>();

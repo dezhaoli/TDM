@@ -43,9 +43,8 @@ namespace TDMClient
                 {
                     BinaryWriter bw = new BinaryWriter(memoryStream);
                     byte[] msgByte = Encoding.UTF8.GetBytes(msg);
-                    int msgLen = msgByte.Length;
 
-                    bw.Write(Array.Reverse(BitConverter.GetBytes(msgLen)));
+                    bw.Write(Convert(msgByte.Length));
                     bw.Write(msgByte);
 
                     _bytes = memoryStream.ToArray();
@@ -55,6 +54,26 @@ namespace TDMClient
 
                 return _bytes;
             }
+
+            set
+            {
+                byte[] _bytes = value;
+            }
+        }
+
+        public byte[] Convert(int i)
+        {
+            byte[] bytes = BitConverter.GetBytes(i);
+            Array.Reverse(bytes);
+            return bytes;
+        }
+        public static DData Read(byte[] bytes)
+        {
+            DData item = new DData("", null)
+            {
+                Bytes = bytes
+            };
+            return item;
         }
     }
 }

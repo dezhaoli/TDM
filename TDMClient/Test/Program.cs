@@ -7,12 +7,10 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            dynamic obj = new System.Dynamic.ExpandoObject();
-            obj.A = "a";
+            
 
 
-
-            Console.WriteLine("Hello World!"+obj.A);
+            Console.WriteLine("Hello World!");
         }
     }
 }
