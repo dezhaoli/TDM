@@ -77,21 +77,22 @@ namespace TDMClient
 
         private static void sendInformation()
         {
+            
 
-            InfoVO data = new InfoVO()
-            {
-                command = DConstants.COMMAND_INFO,
-                debuggerVersion = TranslationDebugger.VERSION,
-                playerType = Application.platform.ToString(),
-                playerVersion = Application.version,
-                isDebugger = Debug.isDebugBuild,
-                fileLocation = "",
-                fileTitle = Application.productName,
-                kvs = null
-            };
+            //InfoVO data = new InfoVO()
+            //{
+            //    command = DConstants.COMMAND_INFO,
+            //    debuggerVersion = TranslationDebugger.VERSION,
+            //    playerType = UnityEngine.Application.platform.ToString(),
+            //    playerVersion = TranslationDebugger.pv,
+            //    isDebugger = Debug.isDebugBuild,
+            //    fileLocation = "",
+            //    fileTitle = UnityEngine.Application.productName,
+            //    kvs = null
+            //};
 
             // Send the data direct
-            Send(data, true);
+            Send(TranslationDebugger.infoVO, true);
 
             // Start the queue after that
             DConnection.ProcessQueue();

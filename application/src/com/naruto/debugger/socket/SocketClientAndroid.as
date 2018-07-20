@@ -206,7 +206,7 @@ package com.naruto.debugger.socket
 			if (_length != 0 && _package.length == _length) {
 				
 				// Log the data
-				var item:DData = DData.read(_package);
+				var item:DData = DData.read(_package,Endian.LITTLE_ENDIAN);
 
 				// Check if we should handle the call internaly
 				if (item.id != null && item.id == DConstants.ID) {

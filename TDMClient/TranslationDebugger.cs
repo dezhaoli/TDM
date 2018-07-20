@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace TDMClient
 {
     public class TranslationDebugger : MonoBehaviour
@@ -12,11 +11,21 @@ namespace TDMClient
         private static bool _initialized = false;
 
         internal static readonly int VERSION = 24;
-
+        public static  InfoVO infoVO;
         // Use this for initialization
         void Start()
         {
-            
+            infoVO = new InfoVO()
+            {
+                command = DConstants.COMMAND_INFO,
+                debuggerVersion = TranslationDebugger.VERSION,
+                playerType = UnityEngine.Application.platform.ToString(),
+                playerVersion = UnityEngine.Application.version,
+                isDebugger = Debug.isDebugBuild,
+                fileLocation = "",
+                fileTitle = UnityEngine.Application.productName,
+                kvs = null
+            };
             Initialize(gameObject);
         }
 
@@ -28,17 +37,20 @@ namespace TDMClient
         private void OnGUI()
         {
             GUI.Box(new Rect(10, 10, 100, 90), "TranslatioinDebugger");
-            if(GUI.Button(new Rect(20, 40, 80, 20), "Send")){
+            if (GUI.Button(new Rect(20, 40, 80, 20), "Send"))
+            {
 
                 Log("hi,i'am devin.");
             }
         }
         private void OnDestroy()
         {
+            Debug.Log("destroy...");
             DConnection.Disconnect();
         }
 
-        internal static void Initialize(GameObject baseObj , string local = ""){
+        internal static void Initialize(GameObject baseObj, string local = "")
+        {
             if (_initialized) return;
             _initialized = true;
             DCore.Base = baseObj;
@@ -62,13 +74,15 @@ namespace TDMClient
                 _enabled = value;
             }
         }
-        public static void Trace(object caller, object @object, string persion = "" ,string label="",uint color=0, int depth =5)
+        public static void Trace(object caller, object @object, string persion = "", string label = "", uint color = 0, int depth = 5)
         {
-            if(_initialized && _enabled){
-                DCore.Trace(caller,@object,persion,label,color,depth);
+            if (_initialized && _enabled)
+            {
+                DCore.Trace(caller, @object, persion, label, color, depth);
             }
         }
-        public static void Log(params object[] args){
+        public static void Log(params object[] args)
+        {
             if (_initialized && _enabled)
             {
                 if (args.Length == 0)

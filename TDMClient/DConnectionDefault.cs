@@ -89,7 +89,8 @@ namespace TDMClient
                 using (MemoryStream ms = new MemoryStream())
                 {
                     BinaryWriter bw = new BinaryWriter(ms, UTF8Encoding.Default);
-                    byte[] bytes = new DData(id, data).Bytes;
+                    DData item = new DData(id, data);
+                    byte[] bytes = item.Bytes;
                     bw.Write(bytes.Length);
                     bw.Write(Encoding.UTF8.GetBytes("LDZ"));
                     bw.Write(bytes);

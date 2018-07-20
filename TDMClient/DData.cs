@@ -38,14 +38,19 @@ namespace TDMClient
             get
             {
                 byte[] _bytes;
+                string cmd = _data.command;
+                _data.command = "";
                 string msg = JsonMapper.ToJson(_data);
                 using(MemoryStream memoryStream = new MemoryStream())
                 {
                     BinaryWriter bw = new BinaryWriter(memoryStream);
-                    byte[] msgByte = Encoding.UTF8.GetBytes(msg);
+                    byte[] bytesId = Encoding.UTF8.GetBytes(cmd);
+                    bw.Write(bytesId.Length);
+                    bw.Write(bytesId);
 
-                    bw.Write(msgByte.Length);
-                    bw.Write(msgByte);
+                    byte[] bytesData = Encoding.UTF8.GetBytes(msg);
+                    bw.Write(bytesData.Length);
+                    bw.Write(bytesData);
 
                     _bytes = memoryStream.ToArray();
                     bw.Close();

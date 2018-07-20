@@ -80,9 +80,13 @@ package com.naruto.debugger
 			bytesData.endian = _endian;
 
 			// Save the objects
-			bytesId.writeObject(_id);
-			bytesData.writeObject(_data);
-
+			if(_endian == Endian.LITTLE_ENDIAN){
+				bytesId.writeUTFBytes(_id);
+				bytesData.writeUTFBytes( _data.toString() );
+			}else{
+				bytesId.writeObject(_id);
+				bytesData.writeObject(_data);
+			}
 			// Write in one object
 			var item:ByteArray = new ByteArray();
 			item.endian =_endian;
@@ -118,8 +122,13 @@ package com.naruto.debugger
 				value.readBytes(bytesData, 0, value.readUnsignedInt());
 
 				// Save vars
-				_id = bytesId.readObject() as String;
-				_data = bytesData.readObject() as Object;
+				if(_endian == Endian.LITTLE_ENDIAN){
+					_id = bytesId.readUTFBytes(bytesId.length);
+					_data = bytesData.readUTFBytes(bytesData.length)
+				}else{
+					_id = bytesId.readObject() as String;
+					_data = bytesData.readObject() as Object;
+				}
 			} catch (e:Error) {
 				_id = null;
 				_data = null;
