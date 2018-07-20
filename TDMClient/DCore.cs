@@ -35,6 +35,11 @@ namespace TDMClient
                 Send(data);
             }
         }
+        /**
+         * Send data to the desktop application.
+         * @param data: The data to send
+         * @param direct: Use the queue or send direct (handshake)
+         */
         private static void Send(BaseVO data, bool direct = false)
         {
             if (TranslationDebugger.Enabled)
@@ -45,7 +50,51 @@ namespace TDMClient
 
         internal static void Handle(DData data)
         {
-            throw new NotImplementedException();
+            if(TranslationDebugger.Enabled)
+            {
+                if (String.IsNullOrEmpty(data.Id))
+                {
+                    return;
+                }
+                HandleInternal(data);
+            }
+
+
+        }
+
+        private static void HandleInternal(DData data)
+        {
+            switch (data.Id)
+            {
+                case DConstants.COMMAND_HELLO:
+                    sendInformation();
+                    break;
+                default:
+                    
+                    break;
+            }
+        }
+
+        private static void sendInformation()
+        {
+
+            InfoVO data = new InfoVO()
+            {
+                command = DConstants.COMMAND_INFO,
+                debuggerVersion = TranslationDebugger.VERSION,
+                playerType = Application.platform.ToString(),
+                playerVersion = Application.version,
+                isDebugger = Debug.isDebugBuild,
+                fileLocation = "",
+                fileTitle = Application.productName,
+                kvs = null
+            };
+
+            // Send the data direct
+            Send(data, true);
+
+            // Start the queue after that
+            DConnection.ProcessQueue();
         }
     }
 }

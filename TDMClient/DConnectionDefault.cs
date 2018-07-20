@@ -1,49 +1,190 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Timers;
 using UnityEngine;
 
 namespace TDMClient
 {
     public class DConnectionDefault : IConnection
     {
-        TcpClient _socket;
-        string _ip = "127.0.0.1";
+        // Max queue length
+        private int MAX_QUEUE_LENGTH = 500;
+
+        // Properties
+        private TcpClient _socket;
+        private bool _connecting;
+        private bool _process;
+        private Timer _retry;
+        private Timer _timeout;
+        private string _address;
+        private int _port;
+
+        // Data buffer
+        private Queue _queue = new Queue();
+
         public DConnectionDefault()
         {
             _socket = new TcpClient();
+
+            _address = "127.0.0.1";
+
+            _connecting = false;
+            _process = false;
+#if UNITY_EDITOR
+            _port =  10086;
+#elif UNITY_ANDROID
+            _port =  12580;
+#endif
+            _timeout = new Timer(2000);
+            _timeout.AutoReset = false;
+            _timeout.Elapsed += timeoutHandler;
+            _retry = new Timer(1000);
+            _retry.AutoReset = false;
+            _retry.Elapsed += retryHandler;
+
         }
 
-        string IConnection.Address
+        public string Address
         {
             set
             {
-                _ip = value;
+                _address = value;
             }
         }
-
-        bool IConnection.Connected{
+        /**
+         * Get connected status.
+         */
+        public bool Connected{
             get
             {
                 return _socket.Connected;
             }
         }
-
-        void IConnection.Connect()
+        /**
+         *  Start processing the queue.
+         */
+        public void ProcessQueue()
         {
-            DUtils.Log("BeginConnect!");
-            StateObject so = new StateObject();
-            so.client = _socket;
-#if UNITY_EDITOR
-            _socket.BeginConnect(_ip, 10086, OnConnect, so);
-#elif UNITY_ANDROID
-            _socket.BeginConnect(_ip, 12580, OnConnect, so);
-#endif
+            if(!_process){
+                _process = true;
+                if(_queue.Count>0){
+                    Next();
+                }
+            }
+        }
+        /**
+         * Send data to the desktop application.
+         * @param id: The id of the plugin
+         * @param data: The data to send
+         * @param direct: Use the queue or send direct (handshake)
+         */
+        public void Send(string id, BaseVO data, bool direct = false)
+        {
+            // Send direct (in case of handshake)
+            if (direct && id == DCore.ID && _socket.Connected)
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    BinaryWriter bw = new BinaryWriter(ms, UTF8Encoding.Default);
+                    byte[] bytes = new DData(id, data).Bytes;
+                    bw.Write(bytes.Length);
+                    bw.Write(Encoding.UTF8.GetBytes("LDZ"));
+                    bw.Write(bytes);
+                    var datas = ms.ToArray();
+                    NetworkStream ns = _socket.GetStream();
+                    ns.Write(datas, 0, datas.Length);
+                    ns.Flush();
+                    bw.Close();
+                }
+                return;
+            }
+            // Add to normal queue
+            _queue.Enqueue(new DData(id, data));
+            if (_queue.Count > MAX_QUEUE_LENGTH)
+            {
+                _queue.Dequeue();
+            }
+            if (_queue.Count > 0)
+            {
+                Next();
+            }
+        }
+        /**
+         * Connect the socket.
+         */
+        public void Connect()
+        {
+            if (!_connecting && TranslationDebugger.Enabled)
+            {
+                try
+                {
+                    DUtils.Log("BeginConnect!");
+                    _connecting = true;
+                    _retry.Stop();
+                    _timeout.Start();
+
+                    StateObject so = new StateObject();
+                    so.client = _socket;
+
+                    _socket.BeginConnect(_address, _port, ConnectHandler, so);
+
+                }
+                catch (Exception ex)
+                {
+                    closeHandler(ex.Message);
+                }
+            }
+
         }
 
-        void OnConnect(IAsyncResult ar)
+        private void Next()
         {
+            if (!TranslationDebugger.Enabled)
+                return;
+            if (!_process)
+            {
+                return;
+            }
+            if(!_socket.Connected)
+            {
+                Connect();
+                return;
+            }
+
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryWriter bw = new BinaryWriter(ms, UTF8Encoding.Default);
+                DData data = (DData)_queue.Dequeue();
+                byte[] bytes = data.Bytes;
+                bw.Write(bytes.Length);
+                bw.Write(Encoding.UTF8.GetBytes("LDZ"));
+                bw.Write(bytes);
+                var datas = ms.ToArray();
+                NetworkStream ns = _socket.GetStream();
+                ns.Write(datas, 0, datas.Length);
+                ns.Flush();
+                bw.Close();
+            }
+
+            if(_queue.Count>0)
+            {
+                Next();
+            }
+        }
+
+        private void ConnectHandler(IAsyncResult ar)
+        {
+            _timeout.Stop();
+            _retry.Stop();
+
+            _connecting = false;
+
+
+
             StateObject state = (StateObject)ar.AsyncState;
             TcpClient tcp = state.client;
             DUtils.Log("TranslationDebugger Connected:"+ tcp.Connected);
@@ -53,28 +194,68 @@ namespace TDMClient
                 if (tcp.Connected)
                 {
                     NetworkStream ns = tcp.GetStream();
+
+                    byte[] hello = Encoding.UTF8.GetBytes("<hello/>");
+                    ns.Write(hello, 0, hello.Length);
+                    ns.Flush();
+                    //Shortcut.start();
                     if (ns.CanRead)
                     {
-                        ns.BeginRead(state.buffer, 0, StateObject.BufferMaxSize, OnRead, state);
+                        ns.BeginRead(state.buffer, 0, StateObject.BufferMaxSize, dataHandler, state);
                         return;
                     }
                 }
-                closeSocket("Some error occur.Close nonnection...");
+                closeHandler("Some error occur.Close nonnection...");
             }
             catch(Exception ex)
             {
-                closeSocket("TranslationDebugger connection failed:" + ex.Message);
+                closeHandler("TranslationDebugger connection failed:" + ex.Message);
             }
 
         }
+        /**
+         * Retry is done.
+         */
+        void retryHandler(object sender, ElapsedEventArgs e)
+        {
+            _retry.Stop();
+            Connect();
+        }
+        void timeoutHandler(object sender, ElapsedEventArgs e)
+        {
+            closeHandler("connect timeout...");
+        }
 
-        void OnRead(IAsyncResult ar)
+        /**
+         * Connection closed.
+         * Due to a timeout or connection error.
+         */
+        void closeHandler(string msg = "")
+        {
+            Disconnect();
+            if (!String.IsNullOrEmpty(msg))
+            {
+                DUtils.Log(msg);
+            }
+            // Resume if we have paused the applicatio we're debugging
+            //DUtils.resume();
+            if (!_retry.Enabled)
+            {
+                _connecting = false;
+                _process = false;
+                _timeout.Stop();
+                _retry.Start();
+                DUtils.Log("start retry timer...");
+            }
+            //Shortcut.stop();
+        }
+        void dataHandler(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
             TcpClient tcp = state.client;
             NetworkStream ns = tcp.GetStream();
             if(!tcp.Connected){
-                closeSocket("TDC lost connection...");
+                closeHandler("TDC lost connection...");
                 return;
             }
             state.bufferSize = ns.EndRead(ar);
@@ -122,38 +303,21 @@ namespace TDMClient
                 ProcessPackage(state);
             }
 
-
-        }
-        void closeSocket(string msg){
-            DUtils.Log(msg);
-            //DUtils.resume();
-
         }
 
-        void IConnection.ProcessQueue()
+        public void Disconnect()
         {
-            throw new NotImplementedException();
-        }
-
-        void IConnection.Send(string id, BaseVO data, bool direct)
-        {
-            if(direct && id == DCore.ID && _socket.Connected)
+            if (_socket != null)
             {
-                using(MemoryStream ms = new MemoryStream()){
-                    BinaryWriter bw = new BinaryWriter(ms, UTF8Encoding.Default);
-                    byte[] bytes = new DData(id, data).Bytes;
-                    bw.Write(bytes.Length);
-                    bw.Write(Encoding.UTF8.GetBytes("LDZ"));
-                    bw.Write(bytes);
-                    var datas = ms.ToArray();
-                    NetworkStream ns = _socket.GetStream();
-                    ns.Write(datas, 0, datas.Length);
-                    ns.Flush();
-                    bw.Close();
-                }
+                _socket.Close();
 
+                _socket = new TcpClient();
             }
         }
+
+
+
+
     }
     internal class StateObject{
         public TcpClient client = null;

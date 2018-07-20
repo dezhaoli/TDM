@@ -31,5 +31,9 @@ namespace TDMClient
             connector.Connect();
         }
 
+        internal static void Disconnect()
+        {
+            connector.Disconnect();
+        }
     }
 }

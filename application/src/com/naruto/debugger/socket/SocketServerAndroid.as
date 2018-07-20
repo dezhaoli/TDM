@@ -18,7 +18,6 @@ package com.naruto.debugger.socket
 
 	/**
 	 * This is the new server
-	 * running on port 5840
 	 */
 	public class SocketServerAndroid
 	{
@@ -78,8 +77,8 @@ package com.naruto.debugger.socket
 			}
 			try {
 				var localAddress:String = "0.0.0.0";
-				trace("bind:"+localAddress);
-				_server.bind(10086, localAddress);
+				trace("SocketServerAndroid bind: "+localAddress+":"+_port);
+				_server.bind(_port, localAddress);
 				_server.listen();
 			} catch(e:Error) {
 				trace("error:"+e.message);
@@ -96,12 +95,42 @@ package com.naruto.debugger.socket
 		{
 			// Accept socket
 			var socket:Socket = event.socket;
-
+			socket.addEventListener(Event.CLOSE, disconnect, false, 0, false);
+			socket.addEventListener(IOErrorEvent.IO_ERROR, disconnect, false, 0, false);
+			socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, disconnect, false, 0, false);
+			socket.addEventListener(ProgressEvent.SOCKET_DATA, dataHandler, false, 0, false);
+		}
+		
+		
+		/**
+		 * Socket received the first data
+		 */
+		private static function dataHandler(event:ProgressEvent):void
+		{
+			// Get the socket
+			var socket:Socket = event.target as Socket;
+			
+			// Read the bytes
+			var bytes:ByteArray = new ByteArray;
+			socket.readBytes(bytes, 0, socket.bytesAvailable);
+			bytes.position = 0;
+			
+			// Read the command
+			var command:String = bytes.readUTFBytes(bytes.bytesAvailable);
+			
+			
+			
+			// Configure wrapper
+			socket.removeEventListener(Event.CLOSE, disconnect);
+			socket.removeEventListener(IOErrorEvent.IO_ERROR, disconnect);
+			socket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, disconnect);
+			socket.removeEventListener(ProgressEvent.SOCKET_DATA, dataHandler);
+			
 			// Create a new client
 			var client:SocketClientAndroid = new SocketClientAndroid(socket);
 			client.onStart = startClient;
 			client.onDisconnect = removeClient;
-
+			
 			// Save client
 			_clients[client] = {};
 		}
@@ -145,7 +174,6 @@ package com.naruto.debugger.socket
 			socket.removeEventListener(Event.CLOSE, disconnect);
 			socket.removeEventListener(IOErrorEvent.IO_ERROR, disconnect);
 			socket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, disconnect);
-			socket.removeEventListener(ProgressEvent.SOCKET_DATA, dataHandler);
 			socket = null;
 			trace('socket lost disconnection...');
 		}

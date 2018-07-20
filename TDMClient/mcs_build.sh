@@ -15,7 +15,7 @@ cat *.csproj | grep '<DefineConstants>' | sed 's/.*>\([^<]*\)<.*/-define:\1/' |t
 cat *.csproj | grep '<Compile Include=' | sed 's/.*"\([^"]*\)".*/\1/' |tr \\ / >> $args
 
 /Library/Frameworks/Mono.framework/Versions/Current/Commands/mcs \
--target:library -debug -nowarn:0169 -langversion:3.5  \
+-target:library -debug -nowarn:0169 -langversion:4 -sdk:2.0 \
 $(cat $args)
 cp /Users/devin/WS/FlashProjects/TDM/TDMClient/bin/mcs/*dll* /Users/devin/Desktop/MyTestUnity/Assets/Plugin
 

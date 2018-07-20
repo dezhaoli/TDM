@@ -3,7 +3,6 @@ package controllers.home
 	import com.naruto.debugger.DHistory;
 	import com.naruto.debugger.DHistoryItem;
 	import com.naruto.debugger.IClient;
-	import com.naruto.debugger.socket.DConnectionDefault;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -129,7 +128,7 @@ package controllers.home
 					f.openWithDefaultApplication();
 					break;
 				case _tab.buttonGame:
-					var connect:DConnectionDefault = new DConnectionDefault;
+					//
 					
 					break;
 			}

@@ -77,7 +77,9 @@ package com.naruto.debugger.socket
 				_server.addEventListener(Event.CONNECT, onConnect, false, 0, false);
 			}
 			try {
-				_server.bind(_port, "0.0.0.0");
+				var localAddress:String = "0.0.0.0";
+				trace("SocketServer1 bind: "+localAddress+":"+_port);
+				_server.bind(_port, localAddress);
 				_server.listen();
 			} catch(e:Error) {
 				_timer.reset();

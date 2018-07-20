@@ -95,7 +95,7 @@ package com.naruto.debugger.socket
 		/**
 		 * Wrapper for socket
 		 */
-		public function SocketClient(socket:Socket)
+		public function SocketClientAndroid(socket:Socket)
 		{
 			// Save socket and bytes
 			_socket = socket;
@@ -155,7 +155,7 @@ package com.naruto.debugger.socket
 			// Clear and read the bytes
 			_bytes.clear();
 			_socket.readBytes(_bytes, 0, _socket.bytesAvailable);
-
+			trace("android read data...");
 			// Reset position
 			_bytes.position = 0;
 			processPackage();

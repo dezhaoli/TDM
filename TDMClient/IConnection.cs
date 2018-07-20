@@ -6,9 +6,9 @@ namespace TDMClient
         String Address { set; }
         Boolean Connected { get; }
 
-        void Send(String id, BaseVO data, Boolean direct);
+        void Send(String id, BaseVO data, Boolean direct = false);
         void Connect();
         void ProcessQueue();
-
+        void Disconnect();
     }
 }

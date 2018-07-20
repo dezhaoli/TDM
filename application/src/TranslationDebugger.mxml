@@ -21,7 +21,6 @@
 			import com.naruto.debugger.IClient;
 			import com.naruto.debugger.netgroup.NetgroupServer;
 			import com.naruto.debugger.socket.SocketServer1;
-			import com.naruto.debugger.socket.SocketServer2;
 			import com.naruto.debugger.socket.SocketServerAndroid;
 			
 			import flash.desktop.NativeApplication;

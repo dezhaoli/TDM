@@ -6,7 +6,7 @@ namespace TDMClient
 {
     public class TranslationDebugger : MonoBehaviour
     {
-        private static bool _enabled = false;
+        private static bool _enabled = true;
 
 
         private static bool _initialized = false;
@@ -35,7 +35,7 @@ namespace TDMClient
         }
         private void OnDestroy()
         {
-            
+            DConnection.Disconnect();
         }
 
         internal static void Initialize(GameObject baseObj , string local = ""){

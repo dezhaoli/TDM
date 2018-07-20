@@ -12,7 +12,7 @@ namespace TDMClient
     public class BaseVO
     {
         public string command;
-
+        public string msg;
     }
     [SerializeField]
     public class TraceVO : BaseVO
@@ -26,4 +26,17 @@ namespace TDMClient
         public string label;
         public uint color;
     }
+    [SerializeField]
+    public class InfoVO : BaseVO
+    {
+        public int debuggerVersion;
+        public string playerType;
+        public string playerVersion;
+        public bool isDebugger;
+        public string xml;
+        public string fileLocation;
+        public string fileTitle;
+        public string[] kvs;
+    }
+
 }

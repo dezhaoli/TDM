@@ -65,8 +65,13 @@ namespace TDMClient
                     l = br.ReadInt32();
                     byte[] bytesData = br.ReadBytes(l);
                     string cmd = Encoding.UTF8.GetString(bytesId);
+                    _id = cmd;
                     string js = Encoding.UTF8.GetString(bytesData);
-
+                    _data = new BaseVO
+                    {
+                        command = _id,
+                        msg = js
+                    };
                 }
             }
         }

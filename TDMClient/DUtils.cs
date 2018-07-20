@@ -445,7 +445,7 @@ namespace TDMClient
         //    }
 
         //    // Return the xml
-            return rootXML;
+            return obj.ToString();
         }
 
 

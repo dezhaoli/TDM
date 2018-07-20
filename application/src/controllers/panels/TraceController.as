@@ -305,7 +305,10 @@ package controllers.panels
 					obj = {};
 					
 					// Check the label
-					if (data["xml"]..node.length() > 1 && data["xml"]..node.length() <= 3) {
+					if(data["xml"] is String){
+						obj.message = data["xml"];
+					}
+					else if (data["xml"]..node.length() > 1 && data["xml"]..node.length() <= 3) {
 						if (data["xml"].node[0].@type == DConstants.TYPE_STRING || data["xml"].node[0].@type == DConstants.TYPE_BOOLEAN || data["xml"].node[0].@type == DConstants.TYPE_NUMBER || data["xml"].node[0].@type == DConstants.TYPE_INT || data["xml"].node[0].@type == DConstants.TYPE_UINT) {
 							obj.message = DUtils.stripBreaks(DUtils.htmlUnescape(data["xml"].node.children()[0].@label));
 						} else {
