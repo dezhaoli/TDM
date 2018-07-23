@@ -16,5 +16,6 @@ package com.naruto.debugger
 		
 		function set onData(value:Function):void;
 		function set onDisconnect(value:Function):void;
+		function closeConnect():void;
 	}
 }

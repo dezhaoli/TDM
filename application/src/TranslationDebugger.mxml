@@ -19,7 +19,7 @@
 			import com.naruto.debugger.DUpdater;
 			import com.naruto.debugger.DUtils;
 			import com.naruto.debugger.IClient;
-			import com.naruto.debugger.netgroup.NetgroupServer;
+			import com.naruto.debugger.socket.SocketClientAndroid;
 			import com.naruto.debugger.socket.SocketServer1;
 			import com.naruto.debugger.socket.SocketServerAndroid;
 			
@@ -35,6 +35,11 @@
 			
 			import controllers.home.HomeController;
 			import controllers.tabs.TabController;
+			import controllers.tabs.TabControllerAndroid;
+			
+			
+			
+			
 			
 			
 
@@ -59,12 +64,9 @@
 				DData._hideDisplayProp = DUtils.loadSettingValue("hideDisplayProp", false);
 				// Start the servers
 				SocketServerAndroid.initialize();
+				SocketServerAndroid.onClientConnect = onClientConnect;
 				SocketServer1.initialize();
 				SocketServer1.onClientConnect = onClientConnect;
-//				SocketServer2.initialize();
-//				SocketServer2.onClientConnect = onClientConnect;
-				NetgroupServer.initialize();
-				NetgroupServer.onClientConnect = onClientConnect;
 				
 				// Check for update
 				DUpdater.check();
@@ -95,55 +97,15 @@
 				DMenu.addEventListener(DMenu.RIA_GUIDE, urlHandler);
 				DMenu.addEventListener(DMenu.FLASH_PLAYERS, urlHandler);
 				
-				// Close
-				NativeApplication.nativeApplication.addEventListener(Event.EXITING, exitApplication, false, 0, true);
-				nativeWindow.addEventListener(NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING, windowStateHandler, false, 0, true);
-				nativeWindow.addEventListener(Event.CLOSING, hideApplication, false, 0, true);
 				
 				container.viewstack.addEventListener(IndexChangedEvent.CHANGE, onTabChange, false, 0, true);
 				container.addEventListener(TabCloseable.CLOSE_TAB, _closedTab, false, 0, true);
 				container.addEventListener(TabCloseable.CLOSE_APPLICATION, closeApplication, false, 0, true);
 				
-				dockImage = (new DockImage() as Bitmap).bitmapData;
 				
-				
-				NativeApplication.nativeApplication.icon.bitmaps = [dockImage]; //设置托盘的图标    
-				if (NativeApplication.supportsSystemTrayIcon){   
-					//设置托盘菜单的事件    
-					var dockIcon:SystemTrayIcon = SystemTrayIcon(NativeApplication.nativeApplication.icon);
-					dockIcon.tooltip =  "Translation Debugger" ;   
-					dockIcon.addEventListener(MouseEvent.CLICK, undock);   
-					dockIcon.menu = createSystrayRootMenu(); //生成托盘菜单    
-				}
+				initWindow();
 			}
-			public  function createSystrayRootMenu():NativeMenu{   
-				var menu:NativeMenu =  new  NativeMenu();   
-				var openNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Open" ); //生成OPEN菜单项    
-				var exitNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Exit" ); //同理    
-				openNativeMenuItem.addEventListener(Event.SELECT, undock);   
-				exitNativeMenuItem.addEventListener(Event.SELECT, closeApplication); //添加EXIT菜单项事件    
-				menu.addItem(openNativeMenuItem);   
-				menu.addItem( new  NativeMenuItem( "" , true )); //separator     
-				menu.addItem(exitNativeMenuItem); //将菜单项加入菜单    
-				return  menu;
-			}  
 			
-			//将本地应用程序放到托盘    
-			public  function dock(): void  {   
-				nativeWindow.visible =  false ;  //设置本地程序窗体不可见    
-			}   
-			
-			//激活程序窗体    
-			public  function undock(evt:Event): void  {   
-				nativeWindow.visible = true ; //设置本地程序窗体可见    
-				nativeWindow.orderToFront(); //设置本地程序窗体到最前端    
-				//NativeApplication.nativeApplication.icon.bitmaps = []; //将托盘图标清空   
-			} 
-			private function stayOnTop(e:Event):void
-			{
-				alwaysInFront = !alwaysInFront;
-			}
-
 			private function showHelp(e:Event):void
 			{
 				if (helpWindow == null || helpWindow.closed) {
@@ -191,7 +153,14 @@
 						return;
 					}
 				}
-				var tab:TabController = new TabController(closedTab, container, client);
+				
+				var tab:TabController;
+				if(client is SocketClientAndroid){
+					tab = new TabControllerAndroid(closedTab, container, client);
+				}else{
+					tab = new TabController(closedTab, container, client);
+				}
+				
 				
 				tab.active = true;
 				for (i = 0; i < tabs.length; i++) {
@@ -264,6 +233,52 @@
 				}
 				
 			}
+			///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ window initializing
+			private  function initWindow():void{   
+				
+				// Close
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING, exitApplication, false, 0, true);
+				nativeWindow.addEventListener(NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING, windowStateHandler, false, 0, true);
+				nativeWindow.addEventListener(Event.CLOSING, hideApplication, false, 0, true);
+				
+				dockImage = (new DockImage() as Bitmap).bitmapData;
+				NativeApplication.nativeApplication.icon.bitmaps = [dockImage];
+				if (NativeApplication.supportsSystemTrayIcon){   
+					
+					var dockIcon:SystemTrayIcon = SystemTrayIcon(NativeApplication.nativeApplication.icon);
+					dockIcon.tooltip =  "Translation Debugger" ;   
+					dockIcon.addEventListener(MouseEvent.CLICK, undock);   
+					dockIcon.menu = createSystrayRootMenu(); 
+				}
+			}
+			
+			public  function createSystrayRootMenu():NativeMenu{   
+				var menu:NativeMenu =  new  NativeMenu();   
+				var openNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Open" ); //生成OPEN菜单项    
+				var exitNativeMenuItem:NativeMenuItem =  new  NativeMenuItem( "Exit" ); //同理    
+				openNativeMenuItem.addEventListener(Event.SELECT, undock);   
+				exitNativeMenuItem.addEventListener(Event.SELECT, closeApplication); //添加EXIT菜单项事件    
+				menu.addItem(openNativeMenuItem);   
+				menu.addItem( new  NativeMenuItem( "" , true )); //separator     
+				menu.addItem(exitNativeMenuItem); //将菜单项加入菜单    
+				return  menu;
+			}  
+			
+			//将本地应用程序放到托盘    
+			public  function dock(): void  {   
+				nativeWindow.visible =  false ;  //设置本地程序窗体不可见    
+			}   
+			
+			//激活程序窗体    
+			public  function undock(evt:Event): void  {   
+				nativeWindow.visible = true ; //设置本地程序窗体可见    
+				nativeWindow.orderToFront(); //设置本地程序窗体到最前端    
+				//NativeApplication.nativeApplication.icon.bitmaps = []; //将托盘图标清空   
+			} 
+			private function stayOnTop(e:Event):void
+			{
+				alwaysInFront = !alwaysInFront;
+			}
 			
 			
 			/**
@@ -281,8 +296,10 @@
 			
 			private function hideApplication(e:Event):void
 			{
-				e.preventDefault(); //阻止系统默认的关闭窗体事件    
-				dock(); //将程序放入托盘    
+				if (NativeApplication.supportsSystemTrayIcon){  
+					e.preventDefault(); //阻止系统默认的关闭窗体事件    
+					dock(); //将程序放入托盘    
+				}
 			}
 			/**
 			 * Application is closing
@@ -296,13 +313,13 @@
 			{
 				SocketServer1.stop();
 				SocketServerAndroid.stop();
-				NetgroupServer.stop();
 				var windows:Array = NativeApplication.nativeApplication.openedWindows;
 				for (var i:int = 0; i < windows.length; i++) {
 					windows[i].close();
 				}
 			}
-	
+			
+			///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			
 		]]>
 	</fx:Script>

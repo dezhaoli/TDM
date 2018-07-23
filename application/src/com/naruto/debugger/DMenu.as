@@ -68,30 +68,7 @@ package com.naruto.debugger
 		// Menu
 
 
-		private static var _exportClientSWC:NativeMenuItem;
-		private static var _exportClientMobileSWC:NativeMenuItem;
-		private static var _closeTabItem:NativeMenuItem;
-		private static var _closeWindowItem:NativeMenuItem;
-
-		private static var _findFlaKv:NativeMenuItem;
-
-		private static var _helpSubMenuItem:NativeMenuItem;
-		private static var _aboutMenuItem:NativeMenuItem;
-		private static var _websiteMenuItem:NativeMenuItem;
-		private static var _feedbackMenuItem:NativeMenuItem;
-		private static var _documentationSubMenuItem:NativeMenuItem;
-
-		private static var _as3RefMenuItem:NativeMenuItem;
-		private static var _as3RunMenuItem:NativeMenuItem;
-		private static var _riaGuideMenuItem:NativeMenuItem;
-		private static var _playersMenuItem:NativeMenuItem;
-
-		private static var _onTopMenuItem:NativeMenuItem;
-		private static var _devMenuItem:NativeMenuItem;
-		private static var _hideporpMenuItem:NativeMenuItem;
 		private static var _saveMenuItem:NativeMenuItem;
-		private static var _saveAsMenuItem:NativeMenuItem;
-		private static var _gameMenuItem:NativeMenuItem;
 
 
 		// Dispatcher
@@ -100,6 +77,8 @@ package com.naruto.debugger
 		
 		// Main window
 		private static var _mainWindow:NativeWindow;
+		private static var _devMenuItem:NativeMenuItem;
+		private static var _hideporpMenuItem:NativeMenuItem;
 		
 
 		/**
@@ -109,7 +88,7 @@ package com.naruto.debugger
 		{
 			_mainWindow = mainWindow;
 			if (Capabilities.os.substr(0, 3) == "Mac") {
-//				createNativeMacMenu();
+				createNativeMacMenu();
 //				_mainWindow.addEventListener(Event.ACTIVATE, focusMainWindow, false, 0, false);
 //				_mainWindow.addEventListener(Event.DEACTIVATE, unfocusMainWindow, false, 0, false);
 			} else {
@@ -182,57 +161,58 @@ package com.naruto.debugger
 		}
 
 
-//		public static function createNativeMacMenu():NativeMenu
-//		{
-//			var menu:NativeMenu = NativeApplication.nativeApplication.menu;
-//			
-//			// About
-//			var nativeMenu:NativeMenuItem = menu.getItemAt(0);
-//			nativeMenu.submenu.removeItemAt(0);
-//			var aboutMenu:NativeMenuItem = new NativeMenuItem("About Translation Debugger");
-//			aboutMenu.addEventListener(Event.SELECT, function(e:Event):void {
-//				_dispatcher.dispatchEvent(new Event(ABOUT_TRANSLATION));
-//			});
-//			nativeMenu.submenu.addItemAt(aboutMenu, 0);
-//			
-//			// Retrieve File menu
-//			var fileMenuItem:NativeMenuItem = new NativeMenuItem("File");
-//			fileMenuItem.submenu = createFileMenu();
-//			menu.removeItemAt(1);
-//			menu.addItemAt(fileMenuItem, 1);
-//
-//			// Create View menu
-//			var viewMenuItem:NativeMenuItem = new NativeMenuItem("View1");
-//			viewMenuItem.submenu = createViewMenu();
-//			menu.addItemAt(viewMenuItem, 3);
-//			
-//			// Create Edit menu
-//			var editMenuItem:NativeMenuItem = new NativeMenuItem("Edit");
-//			editMenuItem.submenu = createEditMenu();
-//			menu.addItemAt(editMenuItem, 4);
-//			
-//			
-//			_windowMenu = new NativeMenuItem("Window");
-//			_windowMenu.submenu = createMacWindowMenu();
-//			menu.removeItemAt(4);
-//			menu.addItemAt(_windowMenu, 5);
-//
-//			// Create help menu
-//			var helpMenuItem:NativeMenuItem = new NativeMenuItem("Help");
-//			helpMenuItem.submenu = createHelpMenu();
-//			menu.addItem(helpMenuItem);
-//
-//			return menu;
-//		}
+		public static function createNativeMacMenu():NativeMenu
+		{
+			var menu:NativeMenu = NativeApplication.nativeApplication.menu;
+			var item:NativeMenuItem;
+			
+			// About
+			var nativeMenu:NativeMenuItem = menu.getItemAt(0);
+			nativeMenu.submenu.removeItemAt(0);
+			var aboutMenu:NativeMenuItem = new NativeMenuItem("About Translation Debugger");
+			aboutMenu.addEventListener(Event.SELECT, function(e:Event):void {
+				_dispatcher.dispatchEvent(new Event(ABOUT_TRANSLATION));
+			});
+			nativeMenu.submenu.addItemAt(aboutMenu, 0);
+			
+			// Retrieve File menu
+			item = new NativeMenuItem("File");
+			item.submenu = createFileMenu();
+			menu.removeItemAt(1);
+			menu.addItemAt(item, 1);
+
+			// Create View menu
+			item = new NativeMenuItem("View1");
+			item.submenu = createViewMenu();
+			menu.addItemAt(item, 3);
+			
+			// Create Edit menu
+			item = new NativeMenuItem("Edit");
+			item.submenu = createEditMenu();
+			menu.addItemAt(item, 4);
+			
+			
+			item = new NativeMenuItem("Window");
+			item.submenu = createMacWindowMenu();
+			menu.removeItemAt(4);
+			menu.addItemAt(item, 5);
+
+			// Create help menu
+			var helpMenuItem:NativeMenuItem = new NativeMenuItem("Help");
+			helpMenuItem.submenu = createHelpMenu();
+			menu.addItem(helpMenuItem);
+
+			return menu;
+		}
 
 
 		public static function enableSaveItem(saveAs:Boolean = false):void
 		{
 			if (_saveMenuItem) {
 				_saveMenuItem.enabled = true;
-				if (saveAs) {
-					_saveAsMenuItem.enabled = true;
-				}
+//				if (saveAs) {
+//					_saveAsMenuItem.enabled = true;
+//				}
 			}
 		}
 
@@ -241,9 +221,9 @@ package com.naruto.debugger
 		{
 			if (_saveMenuItem) {
 				_saveMenuItem.enabled = false;
-				if (saveAs) {
-					_saveAsMenuItem.enabled = false;
-				}
+//				if (saveAs) {
+//					_saveAsMenuItem.enabled = false;
+//				}
 			}
 		}
 
@@ -251,6 +231,7 @@ package com.naruto.debugger
 		private static function createFileMenu():NativeMenu
 		{
 			var menuFile:NativeMenu = new NativeMenu();
+			var item:NativeMenuItem;
 //
 			//if (Capabilities.os.substr(0, 3) == "Mac") {
 				//_saveMenuItem = new NativeMenuItem("Save");
@@ -283,17 +264,17 @@ package com.naruto.debugger
 			//
 			//menuFile.addItem(new NativeMenuItem("", true));
 
-			_closeTabItem = new NativeMenuItem("Close Tab");
-			_closeTabItem.data = new Event(CLOSE_TAB);
-			_closeTabItem.addEventListener(Event.SELECT, closeTabHandler);
-			_closeTabItem.keyEquivalent = "w";
-			menuFile.addItem(_closeTabItem);
+			item = new NativeMenuItem("Close Tab");
+			item.data = new Event(CLOSE_TAB);
+			item.addEventListener(Event.SELECT, closeTabHandler);
+			item.keyEquivalent = "w";
+			menuFile.addItem(item);
 			
 
 			if (Capabilities.os.substr(0, 3) != "Mac") {
-				_closeWindowItem = new NativeMenuItem("Close");
-				_closeWindowItem.addEventListener(Event.SELECT, closeApplicationHandler);
-				menuFile.addItem(_closeWindowItem);
+				item = new NativeMenuItem("Close");
+				item.addEventListener(Event.SELECT, closeApplicationHandler);
+				menuFile.addItem(item);
 			}
 
 			return menuFile;
@@ -426,7 +407,6 @@ package com.naruto.debugger
 		private static function createHelpMenu():NativeMenu
 		{
 			var menu:NativeMenu = new NativeMenu();
-			
 			//version
 			var appXml:XML = NativeApplication.nativeApplication.applicationDescriptor;  
 			var ns:Namespace = appXml.namespace();  
@@ -436,57 +416,19 @@ package com.naruto.debugger
 			menu.addItem(item);
 			
 			return menu;
-			// Debugger Help
-			_helpSubMenuItem = new NativeMenuItem("Debugger Help");
-			_helpSubMenuItem.data = new Event(HELP_WINDOW, true);
-			_helpSubMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_helpSubMenuItem);
 
-			_gameMenuItem = new NativeMenuItem("Debugger Game");
-			_gameMenuItem.data = new Event(DEBUGGER_GAME, true);
-			_gameMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_gameMenuItem);
-
-			// Separator
-			menu.addItem(new NativeMenuItem("", true));
-
-			// Debugger Help
-			_documentationSubMenuItem = new NativeMenuItem("Online documentation");
-			_documentationSubMenuItem.submenu = createDocumentationMenu();
-			menu.addItem(_documentationSubMenuItem);
-
-			// Separator
-			menu.addItem(new NativeMenuItem("", true));
-
-			if (Capabilities.os.substr(0, 3) != "Mac") {
-				_aboutMenuItem = new NativeMenuItem("About");
-				_aboutMenuItem.data = new Event(ABOUT_TRANSLATION, true);
-				_aboutMenuItem.addEventListener(Event.SELECT, eventHandler);
-				menu.addItem(_aboutMenuItem);
-			}
-
-			_websiteMenuItem = new NativeMenuItem("Product Website");
-			_websiteMenuItem.data = new Event(PRODUCT_WEBSITE, true);
-			_websiteMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_websiteMenuItem);
-
-			_feedbackMenuItem = new NativeMenuItem("Feedback");
-			_feedbackMenuItem.data = new Event(FEEDBACK, true);
-			_feedbackMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_feedbackMenuItem);
-
-			return menu;
 		}
 
 
 		private static function createMacWindowMenu():NativeMenu
 		{
 			var menu:NativeMenu = NativeApplication.nativeApplication.menu.getItemAt(4).submenu;
-			_onTopMenuItem = new NativeMenuItem("Always on top");
-			_onTopMenuItem.checked = false;
-			_onTopMenuItem.data = new Event(ALWAYS_ON_TOP, true);
-			_onTopMenuItem.addEventListener(Event.SELECT, toggleCheckedHandler);
-			menu.addItemAt(_onTopMenuItem, 3);
+			var item:NativeMenuItem;
+			item = new NativeMenuItem("Always on top");
+			item.checked = false;
+			item.data = new Event(ALWAYS_ON_TOP, true);
+			item.addEventListener(Event.SELECT, toggleCheckedHandler);
+			menu.addItemAt(item, 3);
 			return menu;
 		}
 
@@ -494,11 +436,12 @@ package com.naruto.debugger
 		private static function createWindowMenu():NativeMenu
 		{
 			var menu:NativeMenu = new NativeMenu();
-			_onTopMenuItem = new NativeMenuItem("Always on top");
-			_onTopMenuItem.checked = false;
-			_onTopMenuItem.data = new Event(ALWAYS_ON_TOP, true);
-			_onTopMenuItem.addEventListener(Event.SELECT, toggleCheckedHandler);
-			menu.addItem(_onTopMenuItem);
+			var item:NativeMenuItem;
+			item = new NativeMenuItem("Always on top");
+			item.checked = false;
+			item.data = new Event(ALWAYS_ON_TOP, true);
+			item.addEventListener(Event.SELECT, toggleCheckedHandler);
+			menu.addItem(item);
 			
 			_devMenuItem = new NativeMenuItem("Develop mode");
 			_devMenuItem.checked = DData.DEV;
@@ -515,32 +458,6 @@ package com.naruto.debugger
 		}
 
 
-		private static function createDocumentationMenu():NativeMenu
-		{
-			var menu:NativeMenu = new NativeMenu();
-
-			_as3RefMenuItem = new NativeMenuItem("Actionscript 3.0 Reference");
-			_as3RefMenuItem.data = new Event(AS3_REFERENCE);
-			_as3RefMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_as3RefMenuItem);
-
-			_as3RunMenuItem = new NativeMenuItem("Actionscript 3.0 Runtime Errors");
-			_as3RunMenuItem.data = new Event(AS3_RUNTIME_ERRORS);
-			_as3RunMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_as3RunMenuItem);
-
-			_riaGuideMenuItem = new NativeMenuItem("Adobe Flash RIA Guide (PDF)");
-			_riaGuideMenuItem.data = new Event(RIA_GUIDE);
-			_riaGuideMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_riaGuideMenuItem);
-
-			_playersMenuItem = new NativeMenuItem("Adobe Flash Players");
-			_playersMenuItem.data = new Event(FLASH_PLAYERS);
-			_playersMenuItem.addEventListener(Event.SELECT, eventHandler);
-			menu.addItem(_playersMenuItem);
-
-			return menu;
-		}
 
 
 		/**

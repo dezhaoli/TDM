@@ -30,7 +30,6 @@ package com.naruto.debugger.socket
 		private var _playerType:String;
 		private var _playerVersion:String;
 		private var _isDebugger:Boolean;
-		private var _isFlex:Boolean;
 		private var _fileTitle:String;
 		private var _fileLocation:String;
 		private var _kvs:Array;
@@ -49,7 +48,7 @@ package com.naruto.debugger.socket
 			return _isDebugger;
 		}
 		public function get isFlex():Boolean {
-			return _isFlex;
+			return false;
 		}
 		public function get fileTitle():String {
 			return _fileTitle;
@@ -236,7 +235,6 @@ package com.naruto.debugger.socket
 				_playerType = item.data["playerType"];
 				_playerVersion = item.data["playerVersion"];
 				_isDebugger = item.data["isDebugger"];
-				_isFlex = item.data["isFlex"];
 				_fileLocation = item.data["fileLocation"];
 				_fileTitle = item.data["fileTitle"];
 				_kvs = item.data["kvs"];
@@ -244,7 +242,7 @@ package com.naruto.debugger.socket
 				var debuggerVersion:Number = Number(item.data["debuggerVersion"]);
 				
 				if(debuggerVersion < DConstants.MinClientVersion){
-					Alert.show("游戏引用 TranslationDebuggerClient.swc 版本过低,无法适配");
+					Alert.show("游戏引用 TDMClient.DLL 版本过低,无法适配");
 					_socket.close();
 					return;
 				}
@@ -263,7 +261,10 @@ package com.naruto.debugger.socket
 			}
 		}
 		
-
+		public function closeConnect():void{
+			disconnect(null);
+			_socket.close();
+		}
 		/**
 		 * Socket error
 		 */

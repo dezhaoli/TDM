@@ -298,7 +298,10 @@ package com.naruto.debugger.netgroup
 				_onData(item);
 			}
 		}
-		
+		public function closeConnect():void{
+			disconnect(null);
+			_socket.close();
+		}
 
 		/**
 		 * Socket error

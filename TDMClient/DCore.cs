@@ -78,7 +78,7 @@ namespace TDMClient
         private static void sendInformation()
         {
             
-
+            //need to be accessed in the main thread,so move to TranslationDebugger' onstart
             //InfoVO data = new InfoVO()
             //{
             //    command = DConstants.COMMAND_INFO,

@@ -39,7 +39,7 @@ package controllers.tabs
 	import events.TraceEvent;
 
 
-	public class TabController extends EventDispatcher
+	public final class TabControllerAndroid extends TabController
 	{
 
 		// Linked client
@@ -47,7 +47,7 @@ package controllers.tabs
 
 
 		// The tab component
-		public var _tab:Tab;
+//		public var _tab:Tab;
 		private var _closedTab:Function;
 
 
@@ -86,7 +86,7 @@ package controllers.tabs
 		/**
 		 * Create a new tab controller
 		 */
-		public function TabController(closedTab:Function,container:TabContainer, aClient:IClient)
+		public function TabControllerAndroid(closedTab:Function,container:TabContainer, aClient:IClient)
 		{
 			_client = aClient;
 
@@ -100,6 +100,7 @@ package controllers.tabs
 			
 			client = aClient;
 			
+			super(closedTab,container,aClient);
 		}
 
 
@@ -192,7 +193,7 @@ package controllers.tabs
 		/**
 		 * Clear the tab
 		 */
-		public function clear():void
+		override public function clear():void
 		{
 			_traceController.clear();
 			_propertiesController.clear();
@@ -208,7 +209,7 @@ package controllers.tabs
 		/**
 		 * Link the client to this tab
 		 */
-		public function set client(value:IClient):void {
+		override public function set client(value:IClient):void {
 			if (_client != null) {//fix the old one's still connecting ,but new one is comming.
 				_client.closeConnect();
 			}
@@ -238,7 +239,7 @@ package controllers.tabs
 		/**
 		 * Return the linked client
 		 */
-		public function get client():IClient {
+		override public function get client():IClient {
 			return _client;
 		}
 
@@ -409,17 +410,17 @@ package controllers.tabs
 		}
 
 
-		public function get active():Boolean
-		{
-			return _active;
-		}
-
-		public function set active(value:Boolean):void
-		{
-			_active = value;
-			if(_active){
-				windowCheck();
-			}
-		}
+//		public function get active():Boolean
+//		{
+//			return _active;
+//		}
+//
+//		public function set active(value:Boolean):void
+//		{
+//			_active = value;
+//			if(_active){
+//				windowCheck();
+//			}
+//		}
 	}
 }

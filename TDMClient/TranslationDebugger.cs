@@ -10,7 +10,8 @@ namespace TDMClient
 
         private static bool _initialized = false;
 
-        internal static readonly int VERSION = 24;
+        //if this version is less than server version,server will throw unsupport error.
+        internal static readonly int VERSION = 30;
         public static  InfoVO infoVO;
         // Use this for initialization
         void Start()
@@ -19,11 +20,11 @@ namespace TDMClient
             {
                 command = DConstants.COMMAND_INFO,
                 debuggerVersion = TranslationDebugger.VERSION,
-                playerType = UnityEngine.Application.platform.ToString(),
-                playerVersion = UnityEngine.Application.version,
+                playerType = Application.platform.ToString(),
+                playerVersion = Application.version,
                 isDebugger = Debug.isDebugBuild,
-                fileLocation = "",
-                fileTitle = UnityEngine.Application.productName,
+                fileLocation = Application.dataPath,
+                fileTitle = Application.productName,
                 kvs = null
             };
             Initialize(gameObject);

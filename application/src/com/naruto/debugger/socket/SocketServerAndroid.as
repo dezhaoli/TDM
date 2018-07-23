@@ -25,7 +25,6 @@ package com.naruto.debugger.socket
 		// Properties
 		private static var _port:int;
 		private static var _server:ServerSocket;
-		private static var _clients:Dictionary;
 		private static var _dispatcher:EventDispatcher;
 		private static var _timer:Timer;
 		
@@ -42,7 +41,6 @@ package com.naruto.debugger.socket
 		{
 			// Start the server
 			_port = 10086;
-			_clients = new Dictionary();
 			_server = new ServerSocket();
 			_dispatcher = new EventDispatcher();
 			_server.addEventListener(Event.CONNECT, onConnect, false, 0, false);
@@ -129,10 +127,6 @@ package com.naruto.debugger.socket
 			// Create a new client
 			var client:SocketClientAndroid = new SocketClientAndroid(socket);
 			client.onStart = startClient;
-			client.onDisconnect = removeClient;
-			
-			// Save client
-			_clients[client] = {};
 		}
 
 
@@ -147,24 +141,7 @@ package com.naruto.debugger.socket
 				onClientConnect(client);
 			}
 		}
-		
-
-		/**
-		 * Client is done
-		 * THIS IS A CALLBACK FUNCTION
-		 */
-		private static function removeClient(client:SocketClientAndroid):void
-		{
-			client.onData = null;
-			client.onStart = null;
-			client.onDisconnect = null;
-			if (client in _clients) {
-				_clients[client] = null;
-				delete _clients[client];
-			}
-		}
-
-
+	
 		/**
 		 * Socket error
 		 */

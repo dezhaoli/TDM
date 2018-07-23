@@ -257,7 +257,10 @@ package com.naruto.debugger.socket
 			}
 		}
 		
-
+		public function closeConnect():void{
+			disconnect(null);
+			_socket.close();
+		}
 		/**
 		 * Socket error
 		 */
